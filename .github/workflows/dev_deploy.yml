@@ -3,7 +3,8 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - main, Deploy
+      - main
+      - Deploy/**
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/ddipdev
