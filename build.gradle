@@ -31,16 +31,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-	// Security & JWT
+	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
 	// Database & Redis
 	runtimeOnly 'com.mysql:mysql-connector-j'
-//	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-//	implementation 'org.redisson:redisson-spring-boot-starter:3.23.1'
-//	implementation 'org.springframework.session:spring-session-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.redisson:redisson-spring-boot-starter:3.23.1'
+	implementation 'org.springframework.session:spring-session-data-redis'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
@@ -49,12 +49,6 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok'
 
 	// Test Dependencies
-	runtimeOnly 'com.h2database:h2'
-	testImplementation 'com.h2database:h2'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testImplementation 'org.springframework.boot:spring-boot-test'
-	testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	// monitoring
