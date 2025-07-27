@@ -55,6 +55,7 @@ jobs:
           MYSQL_DATABASE: ddip_test
           REDIS_HOST: localhost
           REDIS_PORT: 6379
+          REDIS_PASSWORD: password
 
       - name: Write coverage comments on PR
         uses: madrapps/jacoco-report@v1.6.1
