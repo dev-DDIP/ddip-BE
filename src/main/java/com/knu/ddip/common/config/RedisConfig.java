@@ -1,12 +1,18 @@
 package com.knu.ddip.common.config;
 
+import io.lettuce.core.ClientOptions;
+import io.lettuce.core.SocketOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.time.Duration;
 
 @Configuration
 public class RedisConfig {
@@ -19,27 +25,30 @@ public class RedisConfig {
     private String password;
 
     @Bean
-    LettuceConnectionFactory connectionFactory() {
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
-        redisStandaloneConfiguration.setHostName(host);
-        redisStandaloneConfiguration.setPort(port);
-        redisStandaloneConfiguration.setPassword(password);
-        return new LettuceConnectionFactory(
-                redisStandaloneConfiguration);
+    public LettuceConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration serverConfig = new RedisStandaloneConfiguration(host, port);
+        serverConfig.setPassword(RedisPassword.of(password));
+
+        LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
+                .commandTimeout(Duration.ofMillis(500))
+                .clientOptions(ClientOptions.builder()
+                        .autoReconnect(true)
+                        .socketOptions(
+                                SocketOptions.builder().connectTimeout(Duration.ofMillis(1000)).build())
+                        .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
+                        .build())
+                .build();
+
+        return new LettuceConnectionFactory(serverConfig, clientConfig);
     }
 
     @Bean
-    public RedisTemplate<String, String> redisTemplate() {
-        RedisTemplate<String, String> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory());
-
-        StringRedisSerializer stringSerializer = new StringRedisSerializer();
-        template.setKeySerializer(stringSerializer);
-        template.setValueSerializer(stringSerializer);
-        template.setHashKeySerializer(stringSerializer);
-        template.setHashValueSerializer(stringSerializer);
-
-        template.afterPropertiesSet();
-        return template;
+    public RedisTemplate<?, ?> redisTemplate() {
+        RedisTemplate<?, ?> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        return redisTemplate;
     }
+
 }
