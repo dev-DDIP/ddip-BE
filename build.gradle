@@ -40,7 +40,6 @@ dependencies {
 	// Database & Redis
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.redisson:redisson-spring-boot-starter:3.23.1'
 	implementation 'org.springframework.session:spring-session-data-redis'
 
 	// Lombok
@@ -51,6 +50,8 @@ dependencies {
 
 	// Test Dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.testcontainers:testcontainers:1.20.5'
+	testImplementation 'org.testcontainers:junit-jupiter:1.20.5'
 
 	// monitoring
 	implementation 'io.micrometer:micrometer-registry-prometheus'
