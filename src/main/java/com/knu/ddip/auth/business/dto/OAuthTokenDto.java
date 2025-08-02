@@ -4,7 +4,7 @@ import com.knu.ddip.auth.domain.OAuthToken;
 import lombok.AccessLevel;
 import lombok.Builder;
 
-@Builder(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PROTECTED)
 public record OAuthTokenDto(
         String accessToken,
         String refreshToken,

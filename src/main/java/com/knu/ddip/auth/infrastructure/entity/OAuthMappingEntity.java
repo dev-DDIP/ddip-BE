@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Builder(access = AccessLevel.PUBLIC)
+@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "OAUTH_MAPPING")

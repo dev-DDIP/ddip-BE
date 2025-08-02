@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.util.UUID;
 
 @Getter
-@Builder(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class OAuthMapping {
     private final UUID id;

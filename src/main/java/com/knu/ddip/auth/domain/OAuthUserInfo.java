@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder(access = AccessLevel.PROTECTED)
+@Builder
 public class OAuthUserInfo {
     private String socialUserId;
     private String email;

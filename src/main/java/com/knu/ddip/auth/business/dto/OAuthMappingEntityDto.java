@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.util.UUID;
 
 @Getter
-@Builder(access = AccessLevel.PROTECTED)
+@Builder
 public class OAuthMappingEntityDto {
     private final UUID id;
     private final String socialUserId;

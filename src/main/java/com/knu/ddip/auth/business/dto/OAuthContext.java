@@ -5,7 +5,7 @@ import com.knu.ddip.auth.domain.OAuthProvider;
 import lombok.AccessLevel;
 import lombok.Builder;
 
-@Builder(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PROTECTED)
 public record OAuthContext(OAuthProvider oAuthProvider, DeviceType deviceType) {
     public static OAuthContext of(OAuthProvider oAuthProvider, DeviceType deviceType) {
         return OAuthContext.builder()
