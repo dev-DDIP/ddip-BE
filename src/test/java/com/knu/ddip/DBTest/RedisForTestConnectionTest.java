@@ -41,17 +41,13 @@ class RedisForTestConnectionTest {
     @Test
     public void testRedisConnectionInfo() {
         // When
-        RedisConnection connection = redisTemplate.getConnectionFactory().getConnection();
-
-        try {
+        try (RedisConnection connection = redisTemplate.getConnectionFactory().getConnection()) {
             // Then
             assertThat(connection).isNotNull();
             assertThat(connection.ping()).isNotNull();
 
             System.out.println("Redis connection successful");
-            System.out.println("Redis ping response: " + new String(connection.ping()));
-        } finally {
-            connection.close();
+            System.out.println("Redis ping response: " + connection.ping());
         }
     }
 
