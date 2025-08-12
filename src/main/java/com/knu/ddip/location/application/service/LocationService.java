@@ -92,6 +92,7 @@ public class LocationService {
         locationRepository.saveUserIdByCellId(encodedUserId, cellId);
     }
 
+    // 요청 전송 시 이웃 userIds 조회
     public List<UUID> getNeighborRecipientUserIds(UUID myUserId, double lat, double lng) {
         S2CellId cellIdObj = S2Converter.toCellId(lat, lng, LEVEL);
         String cellId = cellIdObj.toToken();
@@ -119,5 +120,27 @@ public class LocationService {
                 .collect(Collectors.toList());
 
         return userIds;
+    }
+
+    // 초기 화면에서 인접한 요청 가져오기 (현재는 인접한 cellId 가져오는 것만 구현)
+    public List<String> getNeighborCellIds(double lat, double lng) {
+        S2CellId cellIdObj = S2Converter.toCellId(lat, lng, LEVEL);
+        String cellId = cellIdObj.toToken();
+
+        // 경북대 내부에 위치하는지 확인
+        locationRepository.validateLocationByCellId(cellId);
+
+        // 이웃 cellIds 가져오기
+        List<S2CellId> neighbors = new ArrayList<>();
+        cellIdObj.getAllNeighbors(LEVEL, neighbors);
+        List<String> neighborCellIds = neighbors.stream()
+                .map(S2CellId::toToken)
+                .collect(Collectors.toList());
+
+        // 경북대 내부에 위치하는 이웃 cellIds만 가져오기
+        List<String> targetCellIds = locationRepository.findAllLocationsByCellIdIn(neighborCellIds);
+        targetCellIds.add(cellId);
+
+        return targetCellIds;
     }
 }
