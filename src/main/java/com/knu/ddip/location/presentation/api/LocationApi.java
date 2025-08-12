@@ -4,14 +4,14 @@ import com.knu.ddip.location.application.dto.UpdateMyLocationRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Tag(name = "위치", description = "위치 관련 API")
 @RequestMapping("/api/locations")
 public interface LocationApi {
 
-    @PostMapping("/update")
+    @PutMapping
     @Operation(summary = "위치 갱신",
             description = "위도와 경도로 현재 내 위치를 갱신한다.")
     ResponseEntity<Void> updateMyLocation(
