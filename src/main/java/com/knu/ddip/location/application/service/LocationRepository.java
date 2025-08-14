@@ -9,17 +9,15 @@ public interface LocationRepository {
 
     void saveAll(List<String> cellIds);
 
-    Optional<String> findCellIdByUserId(String encodedUserId);
-
-    void deleteUserIdByCellId(String encodedUserId, String cellIdByUserId);
-
     void saveUserIdByCellId(String encodedUserId, String cellId);
-
-    void saveCellIdByUserId(String encodedUserId, String cellId);
 
     void validateLocationByCellId(String cellId);
 
     List<String> findAllLocationsByCellIdIn(List<String> cellIds);
 
     List<String> findUserIdsByCellIds(List<String> targetCellIds);
+
+    boolean isCellIdNotInTargetArea(String cellId);
+
+    void saveUserIdByCellIdAtomic(String newCellId, boolean cellIdNotInTargetArea, String encodedUserId);
 }

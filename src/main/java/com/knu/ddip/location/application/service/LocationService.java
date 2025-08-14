@@ -61,35 +61,16 @@ public class LocationService {
         }
     }
 
-    public void saveUserLocation(UUID userId, UpdateMyLocationRequest request) {
+    public void saveUserLocationAtomic(UUID userId, UpdateMyLocationRequest request) {
         S2CellId cellIdObj = S2Converter.toCellId(request.lat(), request.lng(), LEVEL);
         String cellId = cellIdObj.toToken();
 
+        // 경북대 내부에 위치하는지 확인
+        boolean cellIdNotInTargetArea = locationRepository.isCellIdNotInTargetArea(cellId);
+
         String encodedUserId = UuidBase64Utils.uuidToBase64String(userId);
 
-        // 이전 유저 위치 정보 삭제 후 저장
-        // 예전 위치 있으면 -> 현재 위치와 다르면 삭제 후 저장
-        // 예전 위치 있으면 -> 현재 위치와 같으면 바로 리턴
-        // 예전 위치 없으면 -> 저장
-
-        // 예전 위치 있으면
-        Optional<String> cellIdByUserIdOptional = locationRepository.findCellIdByUserId(encodedUserId);
-        if (cellIdByUserIdOptional.isPresent()) {
-            String cellIdByUserId = cellIdByUserIdOptional.get();
-            // 현재 위치와 같으면 바로 리턴
-            if (cellId.equals(cellIdByUserId)) return;
-            // 이전 위치 삭제
-            locationRepository.deleteUserIdByCellId(encodedUserId, cellIdByUserId);
-        }
-
-        // 경북대 내부에 위치하는지 확인
-        locationRepository.validateLocationByCellId(cellId);
-
-        // 현재 위치 저장
-        // 유저의 현재 cellId 저장
-        locationRepository.saveCellIdByUserId(encodedUserId, cellId);
-        // 현재 cellId에 포함된 유저 저장
-        locationRepository.saveUserIdByCellId(encodedUserId, cellId);
+        locationRepository.saveUserIdByCellIdAtomic(cellId, cellIdNotInTargetArea, encodedUserId);
     }
 
     // 요청 전송 시 이웃 userIds 조회

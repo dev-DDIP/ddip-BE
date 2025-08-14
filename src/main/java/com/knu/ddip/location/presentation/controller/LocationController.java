@@ -15,7 +15,7 @@ public class LocationController implements LocationApi {
 
     @Override
     public ResponseEntity<Void> updateMyLocation(UpdateMyLocationRequest request) {
-        locationService.saveUserLocation(request.userId(), request);
+        locationService.saveUserLocationAtomic(request.userId(), request);
         return ResponseEntity.ok().build();
     }
 }

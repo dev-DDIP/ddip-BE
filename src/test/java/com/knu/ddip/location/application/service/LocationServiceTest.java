@@ -54,7 +54,7 @@ class LocationServiceTest {
         UpdateMyLocationRequest request = UpdateMyLocationRequest.of(userId, lat, lng);
 
         // when
-        locationService.saveUserLocation(userId, request);
+        locationService.saveUserLocationAtomic(userId, request);
 
         // then
         // user:{userId} 확인
@@ -84,7 +84,7 @@ class LocationServiceTest {
 
         UpdateMyLocationRequest request = UpdateMyLocationRequest.of(userId, lat, lng);
 
-        locationService.saveUserLocation(userId, request);
+        locationService.saveUserLocationAtomic(userId, request);
 
         double newLat = 35.8929024;
         double newLng = 128.6122855;
@@ -92,7 +92,7 @@ class LocationServiceTest {
         UpdateMyLocationRequest newRequest = UpdateMyLocationRequest.of(userId, newLat, newLng);
 
         // when
-        locationService.saveUserLocation(userId, newRequest);
+        locationService.saveUserLocationAtomic(userId, newRequest);
 
         // then
         // user:{userId} 삭제 확인
@@ -119,12 +119,12 @@ class LocationServiceTest {
 
         UpdateMyLocationRequest request = UpdateMyLocationRequest.of(userId, lat, lng);
 
-        locationService.saveUserLocation(userId, request);
+        locationService.saveUserLocationAtomic(userId, request);
 
         UpdateMyLocationRequest newRequest = UpdateMyLocationRequest.of(userId, lat, lng);
 
         // when
-        locationService.saveUserLocation(userId, newRequest);
+        locationService.saveUserLocationAtomic(userId, newRequest);
 
         // then
         // user:{userId} 삭제 확인
@@ -134,23 +134,6 @@ class LocationServiceTest {
         // set 삭제 확인
         String cellIdUsersKey = createCellIdUsersKey(cellId);
         assertThat(redisTemplate.opsForSet().isMember(cellIdUsersKey, encodedUserId)).isTrue();
-    }
-
-    @DisplayName("경북대 외부에 위치하면 예외 반환")
-    @Test
-    void saveUserLocationWithOutsideOfTargetArea() {
-        // given
-        UUID userId = UUID.randomUUID();
-
-        double lat = 35.8919637;
-        double lng = 128.5936388;
-
-        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(userId, lat, lng);
-
-        // when // then
-        assertThatThrownBy(() -> locationService.saveUserLocation(userId, request))
-                .isInstanceOf(LocationNotFoundException.class)
-                .hasMessage("위치를 찾을 수 없습니다.");
     }
 
     @Test
@@ -165,7 +148,7 @@ class LocationServiceTest {
         double requestLng = 128.612138;
 
         UpdateMyLocationRequest request = UpdateMyLocationRequest.of(myUserId, requestLat, requestLng);
-        locationService.saveUserLocation(myUserId, request);
+        locationService.saveUserLocationAtomic(myUserId, request);
 
         double[][] latsLngs = {
                 {35.8891866, 128.6121152}, // 포함 : 시계탑
@@ -183,7 +166,7 @@ class LocationServiceTest {
             }
             double[] data = latsLngs[i];
             request = UpdateMyLocationRequest.of(userId, data[0], data[1]);
-            locationService.saveUserLocation(userId, request);
+            locationService.saveUserLocationAtomic(userId, request);
         }
 
         // when

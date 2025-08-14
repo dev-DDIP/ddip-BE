@@ -62,47 +62,6 @@ class LocationRepositoryImplTest {
     }
 
     @Test
-    void findCellIdByUserIdIsPresentTest() {
-        // given
-        String userId = "findCellIdByUserIdIsPresentTest";
-        String userIdKey = createUserIdKey(userId);
-        redisTemplate.opsForValue().set(userIdKey, userId);
-
-        // when
-        Optional<String> cellIdByUserIdOptional = locationRepositoryImpl.findCellIdByUserId(userId);
-
-        // then
-        assertThat(cellIdByUserIdOptional.isPresent()).isTrue();
-    }
-
-    @Test
-    void findCellIdByUserIdIsEmptyTest() {
-        // given
-        String userId = "findCellIdByUserIdIsEmptyTest";
-
-        // when
-        Optional<String> cellIdByUserIdOptional = locationRepositoryImpl.findCellIdByUserId(userId);
-
-        // then
-        assertThat(cellIdByUserIdOptional.isEmpty()).isTrue();
-    }
-
-    @Test
-    void deleteUserIdByCellIdTest() {
-        // given
-        String cellId = "deleteUserIdByCellIdTest";
-        String userId = "deleteUserIdByCellIdTest";
-        String cellIdUsersKey = createCellIdUsersKey(cellId);
-        redisTemplate.opsForSet().add(cellIdUsersKey, userId);
-
-        // when
-        locationRepositoryImpl.deleteUserIdByCellId(userId, cellId);
-
-        // then
-        assertThat(redisTemplate.opsForSet().isMember(userId, cellId)).isFalse();
-    }
-
-    @Test
     void saveUserIdByCellIdTest() {
         // given
         String userId = "saveUserIdByCellIdTest";

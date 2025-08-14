@@ -3,12 +3,16 @@ package com.knu.ddip.location.infrastructure.repositoroy;
 import com.knu.ddip.location.application.service.LocationRepository;
 import com.knu.ddip.location.exception.LocationNotFoundException;
 import com.knu.ddip.location.infrastructure.entity.LocationEntity;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Repository;
 
 import java.nio.charset.StandardCharsets;
@@ -28,6 +32,17 @@ public class LocationRepositoryImpl implements LocationRepository {
     private final JdbcTemplate jdbcTemplate;
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    private DefaultRedisScript<String> saveUserLocationScript;
+
+    @PostConstruct
+    public void init() {
+        saveUserLocationScript = new DefaultRedisScript<>();
+        saveUserLocationScript.setResultType(String.class);
+        saveUserLocationScript.setScriptSource(
+                new ResourceScriptSource(new ClassPathResource("luascript/save_user_location.lua"))
+        );
+    }
 
     @Override
     public void deleteAll() {
@@ -56,16 +71,6 @@ public class LocationRepositoryImpl implements LocationRepository {
     }
 
     @Override
-    public Optional<String> findCellIdByUserId(String encodedUserId) {
-        return Optional.ofNullable(redisTemplate.opsForValue().get(createUserIdKey(encodedUserId)));
-    }
-
-    @Override
-    public void deleteUserIdByCellId(String encodedUserId, String cellId) {
-        redisTemplate.opsForSet().remove(createCellIdUsersKey(cellId), encodedUserId);
-    }
-
-    @Override
     public void saveUserIdByCellId(String encodedUserId, String cellId) {
         long now = System.currentTimeMillis();
         long expireAt = now + TTL_SECONDS * 1000L;
@@ -77,14 +82,62 @@ public class LocationRepositoryImpl implements LocationRepository {
     }
 
     @Override
-    public void saveCellIdByUserId(String encodedUserId, String cellId) {
-        redisTemplate.opsForValue().set(createUserIdKey(encodedUserId), cellId, TTL_SECONDS, TimeUnit.SECONDS);
-    }
-
-    @Override
     public void validateLocationByCellId(String cellId) {
         locationJpaRepository.findById(cellId)
                 .orElseThrow(() -> new LocationNotFoundException("위치를 찾을 수 없습니다."));
+    }
+
+    @Override
+    public void saveUserIdByCellIdAtomic(String newCellId, boolean cellIdNotInTargetArea, String encodedUserId) {
+        String userIdKey = createUserIdKey(encodedUserId);
+        String cellIdUsersKey = createCellIdUsersKey(newCellId);
+        String cellIdExpiriesKey = createCellIdExpiriesKey(newCellId);
+
+        long now = System.currentTimeMillis();
+        long expireAt = now + TTL_SECONDS * 1000L;
+
+//        String saveUserLocationScript = """
+//                -- KEYS:
+//                -- [1] userIdKey
+//                -- [2] cellIdExpiriesKey
+//                -- [3] cellIdUsersKey
+//
+//                -- ARGV:
+//                -- [1] newCellId
+//                -- [2] encodedUserId
+//                -- [3] TTL_SECONDS
+//                -- [4] expireAt
+//
+//                local newCellId = ARGV[1]
+//                local encodedUserId = ARGV[2]
+//                local ttl_seconds = tonumber(ARGV[3])
+//                local expireAt = tonumber(ARGV[4])
+//
+//                local prevCellId = redis.call('GET', KEYS[1])
+//
+//                if prevCellId then
+//                    if prevCellId == newCellId then
+//                        redis.call('EXPIRE', KEYS[2], ttl_seconds)
+//                        return
+//                    end
+//                end
+//
+//                redis.call('SREM', KEYS[3], encodedUserId)
+//
+//                redis.call('SET', KEYS[1], newCellId, 'EX', ttl_seconds)
+//
+//                redis.call('SADD', KEYS[3], encodedUserId)
+//
+//                redis.call('ZADD', KEYS[2], expireAt, encodedUserId)
+//                """;
+//
+//        DefaultRedisScript<String> stringDefaultRedisScript = new DefaultRedisScript<>(saveUserLocationScript, String.class);
+
+        redisTemplate.execute(
+                saveUserLocationScript,
+                Arrays.asList(userIdKey, cellIdExpiriesKey, cellIdUsersKey),
+                newCellId, encodedUserId, String.valueOf(TTL_SECONDS), String.valueOf(expireAt)
+        );
     }
 
     @Override
@@ -98,7 +151,7 @@ public class LocationRepositoryImpl implements LocationRepository {
     public List<String> findUserIdsByCellIds(List<String> targetCellIds) {
         RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
 
-        if (connectionFactory == null) return null;
+        if (connectionFactory == null) return null; // throw xxx
 
         try (RedisConnection conn = connectionFactory.getConnection()) {
             conn.openPipeline();
@@ -122,6 +175,11 @@ public class LocationRepositoryImpl implements LocationRepository {
                     )
                     .collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public boolean isCellIdNotInTargetArea(String cellId) {
+        return locationJpaRepository.findById(cellId).isEmpty();
     }
 
     private String createUserIdKey(String encodedUserId) {
