@@ -112,9 +112,8 @@ public class LocationService {
         targetCellIds.add(cellId);
 
         // targetCellId의 userIds만 가져오기
-        List<UUID> userIds = targetCellIds.stream()
-                .map(locationRepository::findUserIdsByCellId)
-                .flatMap(List::stream)
+
+        List<UUID> userIds = locationRepository.findUserIdsByCellIds(targetCellIds).stream()
                 .map(UuidBase64Utils::base64StringToUuid)
                 .filter(userId -> !userId.equals(myUserId))
                 .collect(Collectors.toList());

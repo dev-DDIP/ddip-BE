@@ -4,11 +4,14 @@ import com.knu.ddip.location.application.service.LocationRepository;
 import com.knu.ddip.location.exception.LocationNotFoundException;
 import com.knu.ddip.location.infrastructure.entity.LocationEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -92,12 +95,33 @@ public class LocationRepositoryImpl implements LocationRepository {
     }
 
     @Override
-    public List<String> findUserIdsByCellId(String targetCellId) {
-        Set<String> members = redisTemplate.opsForSet().members(createCellIdUsersKey(targetCellId));
-        if (members == null || members.isEmpty()) {
-            return Collections.emptyList();
+    public List<String> findUserIdsByCellIds(List<String> targetCellIds) {
+        RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
+
+        if (connectionFactory == null) return null;
+
+        try (RedisConnection conn = connectionFactory.getConnection()) {
+            conn.openPipeline();
+
+            List<byte[]> keys = targetCellIds.stream()
+                    .map(this::createCellIdUsersKey) // "cell:{id}:users" 형태
+                    .map(k -> k.getBytes(StandardCharsets.UTF_8))
+                    .collect(Collectors.toList());
+
+            for (byte[] key : keys) {
+                conn.sMembers(key);
+            }
+
+            List<Object> rawResults = conn.closePipeline();
+
+            return rawResults.stream()
+                    .map(result -> (Set<byte[]>) result)
+                    .filter(Objects::nonNull)
+                    .flatMap(set -> set.stream()
+                            .map(bytes -> new String(bytes, StandardCharsets.UTF_8))
+                    )
+                    .collect(Collectors.toList());
         }
-        return new ArrayList<>(members);
     }
 
     private String createUserIdKey(String encodedUserId) {

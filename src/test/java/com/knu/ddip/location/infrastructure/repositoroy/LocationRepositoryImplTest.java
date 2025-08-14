@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -174,34 +175,35 @@ class LocationRepositoryImplTest {
     }
 
     @Test
-    void findUserIdsByCellIdTest() {
+    void findUserIdsByCellIdsTest() {
+        // 여 테스트 작성
         // given
-        String userId = "findUserIdsByCellIdTest";
-        String targetCellId = "findUserIdsByCellIdTest";
-        String cellIdUsersKey = createCellIdUsersKey(targetCellId);
+        List<String> cellIds = List.of(
+                "findUserIdsByCellIdsTest1",
+                "findUserIdsByCellIdsTest2"
+        );
+        List<LocationEntity> locations = cellIds.stream()
+                .map(LocationEntity::create)
+                .collect(Collectors.toList());
+        locationJpaRepository.saveAll(locations);
 
-        redisTemplate.opsForSet().add(cellIdUsersKey, userId);
+        List<String> userIds = List.of(
+                UUID.randomUUID().toString(),
+                UUID.randomUUID().toString()
+        );
 
-        // when
-        List<String> findUserIds = locationRepositoryImpl.findUserIdsByCellId(targetCellId);
-        for (String findUserId : findUserIds) {
-            System.out.println("findUserId = " + findUserId);
+        for (int i = 0; i < 2; i++) {
+            locationRepositoryImpl.saveUserIdByCellId(userIds.get(i), cellIds.get(i));
         }
-
-        // then
-        assertThat(findUserIds).contains(userId);
-    }
-
-    @Test
-    void findEmptyUserIdsByCellIdTest() {
-        // given
-        String targetCellId = "findEmptyUserIdsByCellIdTest";
+        // 포함되지 않는 셀, 유저 데이터
+        locationRepositoryImpl.saveUserIdByCellId(UUID.randomUUID().toString(), "notIncludedCellId");
 
         // when
-        List<String> findUserIds = locationRepositoryImpl.findUserIdsByCellId(targetCellId);
+        List<String> findCellIds = locationRepositoryImpl.findUserIdsByCellIds(cellIds);
 
         // then
-        assertThat(findUserIds).isEmpty();
+        assertThat(findCellIds).hasSize(2)
+                .containsAll(userIds);
     }
 
     private String createUserIdKey(String encodedUserId) {

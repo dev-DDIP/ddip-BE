@@ -2,6 +2,7 @@ package com.knu.ddip.location.application.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface LocationRepository {
     void deleteAll();
@@ -20,5 +21,5 @@ public interface LocationRepository {
 
     List<String> findAllLocationsByCellIdIn(List<String> cellIds);
 
-    List<String> findUserIdsByCellId(String targetCellId);
+    List<String> findUserIdsByCellIds(List<String> targetCellIds);
 }
