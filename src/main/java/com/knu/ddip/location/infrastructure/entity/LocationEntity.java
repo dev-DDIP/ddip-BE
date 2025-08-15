@@ -4,7 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @Getter
@@ -12,7 +11,7 @@ import org.springframework.data.domain.Persistable;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "LOCATIONS")
-public class LocationEntity implements Persistable<String> {
+public class LocationEntity {
 
     @Id
     private String cellId;
@@ -21,15 +20,5 @@ public class LocationEntity implements Persistable<String> {
         return LocationEntity.builder()
                 .cellId(cellId)
                 .build();
-    }
-
-    @Override
-    public String getId() {
-        return cellId;
-    }
-
-    @Override
-    public boolean isNew() {
-        return true;
     }
 }
