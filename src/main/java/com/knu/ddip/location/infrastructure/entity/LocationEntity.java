@@ -30,6 +30,6 @@ public class LocationEntity implements Persistable<String> {
 
     @Override
     public boolean isNew() {
-        return cellId == null;
+        return true;
     }
 }
