@@ -1,5 +1,7 @@
 package com.knu.ddip.location.presentation.api;
 
+import com.knu.ddip.auth.domain.AuthUser;
+import com.knu.ddip.auth.presentation.annotation.Login;
 import com.knu.ddip.location.application.dto.UpdateMyLocationRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +17,7 @@ public interface LocationApi {
     @Operation(summary = "위치 갱신",
             description = "위도와 경도로 현재 내 위치를 갱신한다.")
     ResponseEntity<Void> updateMyLocation(
-            // @Login AuthenticateUser user,
+            @Login AuthUser user,
             UpdateMyLocationRequest request
     );
 }

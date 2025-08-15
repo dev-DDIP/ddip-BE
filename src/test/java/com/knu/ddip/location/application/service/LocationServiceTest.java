@@ -7,7 +7,6 @@ import com.knu.ddip.config.TestEnvironmentConfig;
 import com.knu.ddip.location.application.dto.UpdateMyLocationRequest;
 import com.knu.ddip.location.application.util.S2Converter;
 import com.knu.ddip.location.application.util.UuidBase64Utils;
-import com.knu.ddip.location.exception.LocationNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ExtendWith({RedisTestContainerConfig.class, MySQLTestContainerConfig.class, TestEnvironmentConfig.class})
@@ -51,7 +49,7 @@ class LocationServiceTest {
 
         String cellId = S2Converter.toCellId(lat, lng, level).toToken();
 
-        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(userId, lat, lng);
+        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(lat, lng);
 
         // when
         locationService.saveUserLocationAtomic(userId, request);
@@ -82,14 +80,14 @@ class LocationServiceTest {
 
         String cellId = S2Converter.toCellId(lat, lng, level).toToken();
 
-        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(userId, lat, lng);
+        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(lat, lng);
 
         locationService.saveUserLocationAtomic(userId, request);
 
         double newLat = 35.8929024;
         double newLng = 128.6122855;
 
-        UpdateMyLocationRequest newRequest = UpdateMyLocationRequest.of(userId, newLat, newLng);
+        UpdateMyLocationRequest newRequest = UpdateMyLocationRequest.of(newLat, newLng);
 
         // when
         locationService.saveUserLocationAtomic(userId, newRequest);
@@ -117,11 +115,11 @@ class LocationServiceTest {
 
         String cellId = S2Converter.toCellId(lat, lng, level).toToken();
 
-        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(userId, lat, lng);
+        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(lat, lng);
 
         locationService.saveUserLocationAtomic(userId, request);
 
-        UpdateMyLocationRequest newRequest = UpdateMyLocationRequest.of(userId, lat, lng);
+        UpdateMyLocationRequest newRequest = UpdateMyLocationRequest.of(lat, lng);
 
         // when
         locationService.saveUserLocationAtomic(userId, newRequest);
@@ -147,7 +145,7 @@ class LocationServiceTest {
         double requestLat = 35.8886597;
         double requestLng = 128.612138;
 
-        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(myUserId, requestLat, requestLng);
+        UpdateMyLocationRequest request = UpdateMyLocationRequest.of(requestLat, requestLng);
         locationService.saveUserLocationAtomic(myUserId, request);
 
         double[][] latsLngs = {
@@ -165,7 +163,7 @@ class LocationServiceTest {
                 userIds.add(userId);
             }
             double[] data = latsLngs[i];
-            request = UpdateMyLocationRequest.of(userId, data[0], data[1]);
+            request = UpdateMyLocationRequest.of(data[0], data[1]);
             locationService.saveUserLocationAtomic(userId, request);
         }
 
