@@ -11,10 +11,6 @@ public record UpdateMyLocationRequest(
         double lng
 ) {
     public static UpdateMyLocationRequest of(UUID userId, double lat, double lng) {
-        return UpdateMyLocationRequest.builder()
-                .userId(userId)
-                .lat(lat)
-                .lng(lng)
-                .build();
+        return new UpdateMyLocationRequest(userId, lat, lng);
     }
 }

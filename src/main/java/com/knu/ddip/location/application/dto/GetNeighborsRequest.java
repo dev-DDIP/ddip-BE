@@ -11,10 +11,6 @@ public record GetNeighborsRequest(
         double lng
 ) {
     public static GetNeighborsRequest of(UUID userId, double lat, double lng) {
-        return GetNeighborsRequest.builder()
-                .userId(userId)
-                .lat(lat)
-                .lng(lng)
-                .build();
+        return new GetNeighborsRequest(userId, lat, lng);
     }
 }
