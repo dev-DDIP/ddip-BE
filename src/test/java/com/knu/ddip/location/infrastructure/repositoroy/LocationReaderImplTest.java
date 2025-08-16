@@ -16,7 +16,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,16 +27,16 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @SpringBootTest
 @ExtendWith({RedisTestContainerConfig.class, MySQLTestContainerConfig.class, TestEnvironmentConfig.class})
 @Import(IntegrationTestConfig.class)
-class LocationRepositoryImplTest {
+class LocationReaderImplTest {
 
     @Autowired
-    LocationRepositoryImpl locationRepository;
+    LocationReaderImpl locationReader;
+    @Autowired
+    LocationWriterImpl locationWriter;
     @Autowired
     LocationJpaRepository locationJpaRepository;
     @Autowired
     RedisTemplate<String, String> redisTemplate;
-    @Autowired
-    private LocationRepositoryImpl locationRepositoryImpl;
 
     @BeforeEach
     void setUp() {
@@ -50,7 +49,7 @@ class LocationRepositoryImplTest {
         List<String> cellIds = List.of("a", "b", "c");
 
         // when
-        locationRepository.saveAll(cellIds);
+        locationWriter.saveAll(cellIds);
 
         List<LocationEntity> locations = locationJpaRepository.findAll();
         List<String> findCellIds = locations.stream()
@@ -71,7 +70,7 @@ class LocationRepositoryImplTest {
         String cellIdExpiriesKey = createCellIdExpiriesKey(cellId);
 
         // when
-        locationRepositoryImpl.saveUserIdByCellId(userId, cellId);
+        locationWriter.saveUserIdByCellIdAtomic(cellId, false, userId);
 
         // then
         assertThat(redisTemplate.opsForSet().isMember(cellIdUsersKey, cellId)).isTrue();
@@ -99,7 +98,7 @@ class LocationRepositoryImplTest {
         locationJpaRepository.save(LocationEntity.create(validCellId));
 
         // when // then
-        assertDoesNotThrow(() -> locationRepositoryImpl.validateLocationByCellId(validCellId));
+        assertDoesNotThrow(() -> locationReader.validateLocationByCellId(validCellId));
     }
 
     @Test
@@ -108,7 +107,7 @@ class LocationRepositoryImplTest {
         String validCellId = "invalidCellId";
 
         // when // then
-        assertThatThrownBy(() -> locationRepositoryImpl.validateLocationByCellId(validCellId))
+        assertThatThrownBy(() -> locationReader.validateLocationByCellId(validCellId))
                 .isInstanceOf(LocationNotFoundException.class)
                 .hasMessage("위치를 찾을 수 없습니다.");
     }
@@ -126,7 +125,7 @@ class LocationRepositoryImplTest {
         locationJpaRepository.saveAll(locations);
 
         // when
-        List<String> findCellIds = locationRepositoryImpl.findAllLocationsByCellIdIn(cellIds);
+        List<String> findCellIds = locationReader.findAllLocationsByCellIdIn(cellIds);
 
         // then
         assertThat(findCellIds).hasSize(2)
@@ -152,13 +151,13 @@ class LocationRepositoryImplTest {
         );
 
         for (int i = 0; i < 2; i++) {
-            locationRepositoryImpl.saveUserIdByCellId(userIds.get(i), cellIds.get(i));
+            locationWriter.saveUserIdByCellIdAtomic(cellIds.get(i), false, userIds.get(i));
         }
         // 포함되지 않는 셀, 유저 데이터
-        locationRepositoryImpl.saveUserIdByCellId(UUID.randomUUID().toString(), "notIncludedCellId");
+        locationWriter.saveUserIdByCellIdAtomic("notIncludedCellId", true, UUID.randomUUID().toString());
 
         // when
-        List<String> findCellIds = locationRepositoryImpl.findUserIdsByCellIds(cellIds);
+        List<String> findCellIds = locationReader.findUserIdsByCellIds(cellIds);
 
         // then
         assertThat(findCellIds).hasSize(2)

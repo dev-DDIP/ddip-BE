@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -27,7 +26,8 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 public class LocationService {
 
-    private final LocationRepository locationRepository;
+    private final LocationReader locationReader;
+    private final LocationWriter locationWriter;
 
     private final ObjectMapper objectMapper;
 
@@ -43,7 +43,7 @@ public class LocationService {
             String geoJsonContent = new String(Files.readAllBytes(resource.getFile().toPath()));
 
             // 기존 데이터 삭제
-            locationRepository.deleteAll();
+            locationWriter.deleteAll();
 
             // JSON 파싱
             JsonNode rootNode = objectMapper.readTree(geoJsonContent);
@@ -52,7 +52,7 @@ public class LocationService {
                     .map(featureNode -> featureNode.get("properties").get("id").asText())
                     .collect(Collectors.toList());
 
-            locationRepository.saveAll(cellIds);
+            locationWriter.saveAll(cellIds);
 
             log.info("총 {}개의 S2Cell Feature가 저장되었습니다.", cellIds.size());
         } catch (IOException e) {
@@ -66,11 +66,11 @@ public class LocationService {
         String cellId = cellIdObj.toToken();
 
         // 경북대 내부에 위치하는지 확인
-        boolean cellIdNotInTargetArea = locationRepository.isCellIdNotInTargetArea(cellId);
+        boolean cellIdNotInTargetArea = locationReader.isCellIdNotInTargetArea(cellId);
 
         String encodedUserId = UuidBase64Utils.uuidToBase64String(userId);
 
-        locationRepository.saveUserIdByCellIdAtomic(cellId, cellIdNotInTargetArea, encodedUserId);
+        locationWriter.saveUserIdByCellIdAtomic(cellId, cellIdNotInTargetArea, encodedUserId);
     }
 
     // 요청 전송 시 이웃 userIds 조회
@@ -79,7 +79,7 @@ public class LocationService {
         String cellId = cellIdObj.toToken();
 
         // 경북대 내부에 위치하는지 확인
-        locationRepository.validateLocationByCellId(cellId);
+        locationReader.validateLocationByCellId(cellId);
 
         // 이웃 cellIds 가져오기
         List<S2CellId> neighbors = new ArrayList<>();
@@ -89,12 +89,12 @@ public class LocationService {
                 .collect(Collectors.toList());
 
         // 경북대 내부에 위치하는 이웃 cellIds만 가져오기
-        List<String> targetCellIds = locationRepository.findAllLocationsByCellIdIn(neighborCellIds);
+        List<String> targetCellIds = locationReader.findAllLocationsByCellIdIn(neighborCellIds);
         targetCellIds.add(cellId);
 
         // targetCellId의 userIds만 가져오기
 
-        List<UUID> userIds = locationRepository.findUserIdsByCellIds(targetCellIds).stream()
+        List<UUID> userIds = locationReader.findUserIdsByCellIds(targetCellIds).stream()
                 .map(UuidBase64Utils::base64StringToUuid)
                 .filter(userId -> !userId.equals(myUserId))
                 .collect(Collectors.toList());
@@ -108,7 +108,7 @@ public class LocationService {
         String cellId = cellIdObj.toToken();
 
         // 경북대 내부에 위치하는지 확인
-        locationRepository.validateLocationByCellId(cellId);
+        locationReader.validateLocationByCellId(cellId);
 
         // 이웃 cellIds 가져오기
         List<S2CellId> neighbors = new ArrayList<>();
@@ -118,7 +118,7 @@ public class LocationService {
                 .collect(Collectors.toList());
 
         // 경북대 내부에 위치하는 이웃 cellIds만 가져오기
-        List<String> targetCellIds = locationRepository.findAllLocationsByCellIdIn(neighborCellIds);
+        List<String> targetCellIds = locationReader.findAllLocationsByCellIdIn(neighborCellIds);
         targetCellIds.add(cellId);
 
         return targetCellIds;

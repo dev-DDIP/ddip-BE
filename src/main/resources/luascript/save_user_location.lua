@@ -13,6 +13,7 @@ local newCellId = ARGV[1]
 local encodedUserId = ARGV[2]
 local ttl_seconds = tonumber(ARGV[3])
 local expireAt = tonumber(ARGV[4])
+local cellIdNotInTargetAreaFlag = tonumber(ARGV[5])
 
 local prevCellId = redis.call('GET', KEYS[1])
 
@@ -24,6 +25,10 @@ if prevCellId then
 
     local oldUsersKey = "cell:" .. prevCellId .. ":users"
     redis.call('SREM', oldUsersKey, encodedUserId)
+end
+
+if cellIdNotInTargetAreaFlag == 1 then
+    return
 end
 
 redis.call('SET', KEYS[1], newCellId, 'EX', ttl_seconds)

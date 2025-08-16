@@ -137,8 +137,6 @@ class LocationServiceTest {
     @Test
     void getNeighborRecipientUserIdsTest() {
         // given
-        int level = 17;
-
         UUID myUserId = UUID.randomUUID();
 
         // 일청담
