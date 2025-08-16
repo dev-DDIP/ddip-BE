@@ -1,14 +1,15 @@
 package com.knu.ddip.location.infrastructure.repositoroy;
 
 import com.knu.ddip.location.application.service.LocationReader;
+import com.knu.ddip.location.application.util.LocationKeyFactory;
 import com.knu.ddip.location.exception.LocationNotFoundException;
 import com.knu.ddip.location.infrastructure.entity.LocationEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -46,7 +47,7 @@ public class LocationReaderImpl implements LocationReader {
             conn.openPipeline();
 
             List<byte[]> keys = targetCellIds.stream()
-                    .map(this::createCellIdUsersKey) // "cell:{id}:users" 형태
+                    .map(LocationKeyFactory::createCellIdUsersKey) // "cell:{id}:users" 형태
                     .map(k -> k.getBytes(StandardCharsets.UTF_8))
                     .collect(Collectors.toList());
 
@@ -69,9 +70,5 @@ public class LocationReaderImpl implements LocationReader {
     @Override
     public boolean isCellIdNotInTargetArea(String cellId) {
         return locationJpaRepository.findById(cellId).isEmpty();
-    }
-
-    private String createCellIdUsersKey(String cellId) {
-        return "cell:" + cellId + ":users";
     }
 }

@@ -1,4 +1,4 @@
-package com.knu.ddip.location.infrastructure.init;
+package com.knu.ddip.location.application.init;
 
 import com.knu.ddip.location.application.service.LocationService;
 import lombok.RequiredArgsConstructor;

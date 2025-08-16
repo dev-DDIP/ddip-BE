@@ -44,54 +44,6 @@ class LocationReaderImplTest {
     }
 
     @Test
-    void saveAllTest() {
-        // given
-        List<String> cellIds = List.of("a", "b", "c");
-
-        // when
-        locationWriter.saveAll(cellIds);
-
-        List<LocationEntity> locations = locationJpaRepository.findAll();
-        List<String> findCellIds = locations.stream()
-                .map(LocationEntity::getCellId)
-                .collect(Collectors.toList());
-
-        // then
-        assertThat(findCellIds).containsAll(cellIds);
-    }
-
-    @Test
-    void saveUserIdByCellIdTest() {
-        // given
-        String userId = "saveUserIdByCellIdTest";
-        String cellId = "saveUserIdByCellIdTest";
-
-        String cellIdUsersKey = createCellIdUsersKey(cellId);
-        String cellIdExpiriesKey = createCellIdExpiriesKey(cellId);
-
-        // when
-        locationWriter.saveUserIdByCellIdAtomic(cellId, false, userId);
-
-        // then
-        assertThat(redisTemplate.opsForSet().isMember(cellIdUsersKey, cellId)).isTrue();
-        assertThat(redisTemplate.opsForZSet().score(cellIdExpiriesKey, cellId)).isNotNull();
-    }
-
-    @Test
-    void saveCellIdByUserIdTest() {
-        // given
-        String userId = "saveCellIdByUserIdTest";
-        String cellId = "saveCellIdByUserIdTest";
-        String userIdKey = createUserIdKey(userId);
-
-        // when
-        redisTemplate.opsForSet().add(userIdKey, cellId);
-
-        // then
-        assertThat(redisTemplate.opsForSet().isMember(userIdKey, cellId)).isTrue();
-    }
-
-    @Test
     void validateLocationByValidCellIdTest() {
         // given
         String validCellId = "validCellId";
@@ -162,18 +114,6 @@ class LocationReaderImplTest {
         // then
         assertThat(findCellIds).hasSize(2)
                 .containsAll(userIds);
-    }
-
-    private String createUserIdKey(String encodedUserId) {
-        return "user:" + encodedUserId;
-    }
-
-    private String createCellIdUsersKey(String cellId) {
-        return "cell:" + cellId + ":users";
-    }
-
-    private String createCellIdExpiriesKey(String cellId) {
-        return "cell:" + cellId + ":expiry";
     }
 
 }

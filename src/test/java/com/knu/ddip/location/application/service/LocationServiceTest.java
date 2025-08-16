@@ -7,6 +7,9 @@ import com.knu.ddip.config.TestEnvironmentConfig;
 import com.knu.ddip.location.application.dto.UpdateMyLocationRequest;
 import com.knu.ddip.location.application.util.S2Converter;
 import com.knu.ddip.location.application.util.UuidBase64Utils;
+import com.knu.ddip.location.infrastructure.entity.LocationEntity;
+import com.knu.ddip.location.infrastructure.repositoroy.LocationJpaRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.knu.ddip.location.application.util.LocationKeyFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -31,6 +35,8 @@ class LocationServiceTest {
     LocationService locationService;
     @Autowired
     RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    LocationJpaRepository locationJpaRepository;
 
     @BeforeEach
     void setUp() {
@@ -171,18 +177,6 @@ class LocationServiceTest {
         // then
         assertThat(neighborRecipientUserIds).containsAll(userIds);
         assertThat(neighborRecipientUserIds).doesNotContain(myUserId);
-    }
-
-    private String createUserIdKey(String encodedUserId) {
-        return "user:" + encodedUserId;
-    }
-
-    private String createCellIdUsersKey(String cellId) {
-        return "cell:" + cellId + ":users";
-    }
-
-    private String createCellIdExpiriesKey(String cellId) {
-        return "cell:" + cellId + ":expiry";
     }
 
 }

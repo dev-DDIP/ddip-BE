@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.knu.ddip.location.application.util.LocationKeyFactory.*;
+
 @Repository
 @RequiredArgsConstructor
 public class LocationWriterImpl implements LocationWriter {
@@ -117,17 +119,5 @@ public class LocationWriterImpl implements LocationWriter {
                 conn.closePipeline();
             }
         }
-    }
-
-    private String createUserIdKey(String encodedUserId) {
-        return "user:" + encodedUserId;
-    }
-
-    private String createCellIdUsersKey(String cellId) {
-        return "cell:" + cellId + ":users";
-    }
-
-    private String createCellIdExpiriesKey(String cellId) {
-        return "cell:" + cellId + ":expiry";
     }
 }
