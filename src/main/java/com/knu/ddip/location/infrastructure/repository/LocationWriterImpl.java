@@ -1,4 +1,4 @@
-package com.knu.ddip.location.infrastructure.repositoroy;
+package com.knu.ddip.location.infrastructure.repository;
 
 import com.knu.ddip.location.application.service.LocationWriter;
 import jakarta.annotation.PostConstruct;

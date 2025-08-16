@@ -1,4 +1,4 @@
-package com.knu.ddip.location.infrastructure.repositoroy;
+package com.knu.ddip.location.infrastructure.repository;
 
 import com.knu.ddip.location.application.service.LocationReader;
 import com.knu.ddip.location.application.util.LocationKeyFactory;
@@ -9,7 +9,6 @@ import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;

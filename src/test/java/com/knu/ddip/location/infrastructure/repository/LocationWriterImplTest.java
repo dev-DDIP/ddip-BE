@@ -1,4 +1,4 @@
-package com.knu.ddip.location.infrastructure.repositoroy;
+package com.knu.ddip.location.infrastructure.repository;
 
 import com.knu.ddip.config.IntegrationTestConfig;
 import com.knu.ddip.config.MySQLTestContainerConfig;
@@ -58,7 +58,7 @@ class LocationWriterImplTest {
     }
 
     @Test
-    void saveUserIdByCellIdTest() {
+    void saveUserIdByCellIdAtomicTest() {
         // given
         String userId = "saveUserIdByCellIdTest";
         String cellId = "saveUserIdByCellIdTest";

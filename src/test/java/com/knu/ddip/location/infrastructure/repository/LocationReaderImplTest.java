@@ -1,4 +1,4 @@
-package com.knu.ddip.location.infrastructure.repositoroy;
+package com.knu.ddip.location.infrastructure.repository;
 
 import com.knu.ddip.config.IntegrationTestConfig;
 import com.knu.ddip.config.MySQLTestContainerConfig;
@@ -7,6 +7,7 @@ import com.knu.ddip.config.TestEnvironmentConfig;
 import com.knu.ddip.location.exception.LocationNotFoundException;
 import com.knu.ddip.location.infrastructure.entity.LocationEntity;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ class LocationReaderImplTest {
     LocationJpaRepository locationJpaRepository;
     @Autowired
     RedisTemplate<String, String> redisTemplate;
+    @Autowired
+    private LocationReaderImpl locationReaderImpl;
 
     @BeforeEach
     void setUp() {
@@ -114,6 +117,30 @@ class LocationReaderImplTest {
         // then
         assertThat(findCellIds).hasSize(2)
                 .containsAll(userIds);
+    }
+
+    @Test
+    void isCellIdNotInTargetAreaWithValidCellIdTest() {
+        // given
+        String validCellId = "3565e170b4";
+
+        // when
+        boolean cellIdNotInTargetArea = locationReaderImpl.isCellIdNotInTargetArea(validCellId);
+
+        // then
+        assertThat(cellIdNotInTargetArea).isFalse();
+    }
+
+    @Test
+    void isCellIdNotInTargetAreaWithInvalidCellIdTest() {
+        // given
+        String validCellId = "invalidCellId";
+
+        // when
+        boolean cellIdNotInTargetArea = locationReaderImpl.isCellIdNotInTargetArea(validCellId);
+
+        // then
+        assertThat(cellIdNotInTargetArea).isTrue();
     }
 
 }
