@@ -1,6 +1,6 @@
 package com.knu.ddip.location.infrastructure.lock;
 
-import com.knu.ddip.location.application.scheduler.OneTimeRunner;
+import com.knu.ddip.location.application.init.OneTimeRunner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
