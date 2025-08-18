@@ -3,6 +3,7 @@ package com.knu.ddip.location.infrastructure.repository;
 import com.knu.ddip.location.application.service.LocationWriter;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -24,6 +25,7 @@ import java.util.Set;
 
 import static com.knu.ddip.location.application.util.LocationKeyFactory.*;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class LocationWriterImpl implements LocationWriter {
@@ -91,6 +93,7 @@ public class LocationWriterImpl implements LocationWriter {
 
     @Override
     public void cleanupExpiredUserLocations(long now) {
+        log.info("start cleanupExpiredUserLocations task");
         try (
                 RedisConnection conn = connectionFactory.getConnection();
                 Cursor<byte[]> cursor = conn.keyCommands()
@@ -118,6 +121,9 @@ public class LocationWriterImpl implements LocationWriter {
                 }
                 conn.closePipeline();
             }
+            log.info("finish cleanupExpiredUserLocations task");
+        } catch (Exception e) {
+            log.error("cleanupExpiredUserLocations error", e);
         }
     }
 }

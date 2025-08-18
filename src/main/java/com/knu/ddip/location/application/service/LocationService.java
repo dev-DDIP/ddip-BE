@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,11 +38,10 @@ public class LocationService {
     // KNU GeoJSON 파일을 읽어서 각 Feature를 DB에 저장
     @Transactional
     public void loadAndSaveGeoJsonFeatures() {
-        try {
-            // resources 폴더에서 파일 읽기
-            ClassPathResource resource = new ClassPathResource(KNU_GEOJSON_FEATURE_FILENAME);
-            String geoJsonContent = new String(Files.readAllBytes(resource.getFile().toPath()));
+        // GeoJson 파일 읽기
+        String geoJsonContent = getGeoJsonContent();
 
+        try {
             // 기존 데이터 삭제
             locationWriter.deleteAll();
 
@@ -122,5 +122,14 @@ public class LocationService {
         targetCellIds.add(cellId);
 
         return targetCellIds;
+    }
+
+    private String getGeoJsonContent() {
+        ClassPathResource resource = new ClassPathResource(KNU_GEOJSON_FEATURE_FILENAME);
+        try (InputStream is = resource.getInputStream()) {
+            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
