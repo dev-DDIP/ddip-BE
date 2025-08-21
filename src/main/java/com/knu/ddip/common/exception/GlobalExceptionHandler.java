@@ -1,6 +1,7 @@
 package com.knu.ddip.common.exception;
 
 import com.knu.ddip.auth.exception.*;
+import com.knu.ddip.location.exception.LocationNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
@@ -65,6 +66,14 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(462), e.getMessage());
         problemDetail.setTitle("Token Stolen");
         return ResponseEntity.status(HttpStatusCode.valueOf(462)).body(problemDetail);
+    }
+
+    @ExceptionHandler(LocationNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleLocationNotFoundException(LocationNotFoundException e) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setTitle("Location Not Found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
     }
 
 }

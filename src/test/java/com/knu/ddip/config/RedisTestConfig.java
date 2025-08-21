@@ -1,5 +1,8 @@
 package com.knu.ddip.config;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -8,6 +11,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.test.context.ActiveProfiles;
 
 @TestConfiguration
 public class RedisTestConfig {
@@ -38,5 +42,20 @@ public class RedisTestConfig {
         template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
         template.afterPropertiesSet();
         return template;
+    }
+
+    @Bean
+    @Primary
+    public RedissonClient testRedissonClient() {
+        String host = System.getProperty("spring.data.redis.host", "localhost");
+        int port = Integer.parseInt(System.getProperty("spring.data.redis.port", "6379"));
+        String password = System.getProperty("spring.data.redis.password", "");
+
+        Config config = new Config();
+        String address = String.format("redis://%s:%d", host, port);
+        config.useSingleServer()
+                .setAddress(address)
+                .setPassword(password.isEmpty() ? null : password);
+        return Redisson.create(config);
     }
 }
