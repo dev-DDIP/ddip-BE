@@ -1,25 +1,28 @@
 package com.knu.ddip.common.config;
 
-import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
+import org.springframework.context.annotation.Profile;
 
-@RequiredArgsConstructor
+@Profile("!test")
 @Configuration
 public class RedissonConfig {
 
-    private final Environment env;
+    @Value("${spring.data.redis.host}")
+    private String host;
+
+    @Value("${spring.data.redis.port}")
+    private int port;
+
+    @Value("${spring.data.redis.password}")
+    private String password;
 
     @Bean
     public RedissonClient redissonClient() {
-        String host = env.getProperty("spring.data.redis.host", "localhost");
-        int port = env.getProperty("spring.data.redis.port", Integer.class, 6379);
-        String password = env.getProperty("spring.data.redis.password", "");
-
         Config config = new Config();
 
         config.useSingleServer()
