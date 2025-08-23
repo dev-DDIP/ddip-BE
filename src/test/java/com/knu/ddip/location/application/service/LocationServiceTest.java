@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class LocationServiceTest {
 
     public static final int LEVEL = 17;
+
     @Autowired
     LocationService locationService;
     @Autowired
@@ -186,7 +187,7 @@ class LocationServiceTest {
         double outsideTargetAreaLng = 1.0;
 
         // when // then
-        assertThatThrownBy(() -> locationService.getNeighborCellIds(outsideTargetAreaLat, outsideTargetAreaLng))
+        assertThatThrownBy(() -> locationService.getNeighborCellIdsToSendDdipRequest(outsideTargetAreaLat, outsideTargetAreaLng))
                 .isInstanceOf(LocationNotFoundException.class)
                 .hasMessage("위치를 찾을 수 없습니다.");
     }
@@ -198,7 +199,7 @@ class LocationServiceTest {
         double lng = 128.6107405;
 
         // when
-        List<String> neighborCellIds = locationService.getNeighborCellIds(lat, lng);
+        List<String> neighborCellIds = locationService.getNeighborCellIdsToSendDdipRequest(lat, lng);
 
         // then
         assertThat(neighborCellIds).hasSize(9);
@@ -211,7 +212,7 @@ class LocationServiceTest {
         double lng = 128.608922;
 
         // when
-        List<String> neighborCellIds = locationService.getNeighborCellIds(lat, lng);
+        List<String> neighborCellIds = locationService.getNeighborCellIdsToSendDdipRequest(lat, lng);
 
         // then
         assertThat(neighborCellIds).hasSize(6);
@@ -332,6 +333,39 @@ class LocationServiceTest {
         assertThat(terminated).isTrue();
         assertThat(redisTemplate.opsForSet().isMember(cellIdUsersKey, encodedUserId)).isTrue();
         assertThat(redisTemplate.opsForZSet().score(cellIdExpiriesKey, encodedUserId)).isNotNull();
+    }
+
+    @Test
+    void getNeighborCellIdsToRetrieveNearDdipRequestTest() {
+        // given
+        double minLat = 35.8878766;
+        double minLng = 128.6089617;
+        double maxLat = 35.8895281;
+        double maxLng = 128.6112577;
+
+        // when
+        List<String> neighborCellIds = locationService.getNeighborCellIdsToRetrieveNearDdipRequest(minLat, minLng, maxLat, maxLng);
+
+        // then
+        assertThat(neighborCellIds).hasSize(21);
+    }
+
+
+
+    @Test
+    void getNeighborCellIdsToRetrieveNearDdipRequestAtEdgeTest() {
+        // given
+        double minLat = 35.8897193;
+        double minLng = 128.6044985;
+        double maxLat = 35.8936654;
+        double maxLng = 128.6110217;
+
+        // when
+        List<String> neighborCellIds = locationService.getNeighborCellIdsToRetrieveNearDdipRequest(minLat, minLng, maxLat, maxLng);
+
+        // then
+        assertThat(neighborCellIds.size()).isNotEqualTo(82);
+        assertThat(neighborCellIds).hasSize(56);
     }
 
 }
