@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 import static com.knu.ddip.location.application.util.LocationKeyFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles("test")
 @Transactional
 @SpringBootTest
 @ExtendWith({RedisTestContainerConfig.class, MySQLTestContainerConfig.class, TestEnvironmentConfig.class})
