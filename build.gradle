@@ -101,7 +101,8 @@ jacocoTestReport {
 					"**/domain/**",
 					"**/exception/**",
 					"**/controller/advice/**",
-					"**/*ControllerAdvice.*"
+					"**/*ControllerAdvice.*",
+					"**/*Controller.*"
 			])
 		}))
 	}
