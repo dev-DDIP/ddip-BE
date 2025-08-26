@@ -36,7 +36,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         String tokenValue = extractTokenFromHeader(request);
         Token token = jwtFactory.parseToken(tokenValue)
-                .orElseThrow(() -> new TokenBadRequestException("유효하지 않은 토큰입니다."));
+                .orElseThrow(() -> new TokenBadRequestException("유효하지 않은 토큰입니다. 만료되었을 수 있습니다."));
 
         JWTValidator.validateAccessToken(token);
 
