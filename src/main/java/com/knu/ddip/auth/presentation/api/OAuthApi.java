@@ -16,7 +16,7 @@ public interface OAuthApi {
 
     @GetMapping("/{provider}/login")
     @Operation(summary = "OAuth 로그인 페이지 이동",
-            description = "provider별 로그인 페이지로 이동한다. state는 deviceType(WEB/APP)")
+            description = "provider별 로그인 페이지로 이동한다. state는 deviceType(TABLET/PHONE)")
     RedirectView redirectToOAuthLoginPage(
             @PathVariable("provider") String provider,
             @RequestParam(value = "state", required = false) String state);
