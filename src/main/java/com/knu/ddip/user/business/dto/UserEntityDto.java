@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.UUID;
 
 @Getter
-@Builder(access = AccessLevel.PROTECTED)
+@Builder
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserEntityDto {
     private final UUID id;
