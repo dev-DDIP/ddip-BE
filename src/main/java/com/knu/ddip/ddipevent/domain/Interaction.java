@@ -13,7 +13,7 @@ public class Interaction {
     private final UUID actorId;
     private final ActorRole actorRole;
     private final ActionType actionType;
-    private final MessageCode messageCode;
+    private final String comment;
     private final UUID relatedPhotoId;
     private final Instant timestamp;
 }

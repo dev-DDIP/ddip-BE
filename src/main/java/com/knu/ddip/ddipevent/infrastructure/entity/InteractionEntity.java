@@ -2,7 +2,6 @@ package com.knu.ddip.ddipevent.infrastructure.entity;
 
 import com.knu.ddip.ddipevent.domain.ActionType;
 import com.knu.ddip.ddipevent.domain.ActorRole;
-import com.knu.ddip.ddipevent.domain.MessageCode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,8 +43,7 @@ public class InteractionEntity {
     @Column(nullable = false)
     private ActionType actionType;
 
-    @Enumerated(EnumType.STRING)
-    private MessageCode messageCode;
+    private String content;
 
     @Column(columnDefinition = "char(36)", updatable = false)
     @JdbcTypeCode(SqlTypes.CHAR)

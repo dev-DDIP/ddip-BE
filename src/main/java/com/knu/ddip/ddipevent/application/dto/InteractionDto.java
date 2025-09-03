@@ -3,14 +3,13 @@ package com.knu.ddip.ddipevent.application.dto;
 import com.knu.ddip.ddipevent.domain.ActionType;
 import com.knu.ddip.ddipevent.domain.ActorRole;
 import com.knu.ddip.ddipevent.domain.Interaction;
-import com.knu.ddip.ddipevent.domain.MessageCode;
 
 public record InteractionDto(
         String interactionId,
         String actorId,
         ActorRole actorRole,
         ActionType actionType,
-        MessageCode messageCode,
+        String comment,
         String relatedPhotoId,
         String timestamp
 ) {
@@ -20,7 +19,7 @@ public record InteractionDto(
                 interaction.getActorId().toString(),
                 interaction.getActorRole(),
                 interaction.getActionType(),
-                interaction.getMessageCode(),
+                interaction.getComment(),
                 interaction.getRelatedPhotoId() != null
                         ? interaction.getRelatedPhotoId().toString()
                         : null,

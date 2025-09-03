@@ -18,7 +18,7 @@ class InteractionTest {
         UUID actorId = UUID.randomUUID();
         ActorRole actorRole = ActorRole.REQUESTER;
         ActionType actionType = ActionType.APPLY;
-        MessageCode messageCode = MessageCode.GREAT_SENSE;
+        String content = "good";
         UUID relatedPhotoId = UUID.randomUUID();
         Instant timestamp = Instant.now();
 
@@ -28,7 +28,7 @@ class InteractionTest {
                 .actorId(actorId)
                 .actorRole(actorRole)
                 .actionType(actionType)
-                .messageCode(messageCode)
+                .comment(content)
                 .relatedPhotoId(relatedPhotoId)
                 .timestamp(timestamp)
                 .build();
@@ -38,7 +38,7 @@ class InteractionTest {
         assertThat(interaction.getActorId()).isEqualTo(actorId);
         assertThat(interaction.getActorRole()).isEqualTo(actorRole);
         assertThat(interaction.getActionType()).isEqualTo(actionType);
-        assertThat(interaction.getMessageCode()).isEqualTo(messageCode);
+        assertThat(interaction.getComment()).isEqualTo(content);
         assertThat(interaction.getRelatedPhotoId()).isEqualTo(relatedPhotoId);
         assertThat(interaction.getTimestamp()).isEqualTo(timestamp);
     }
