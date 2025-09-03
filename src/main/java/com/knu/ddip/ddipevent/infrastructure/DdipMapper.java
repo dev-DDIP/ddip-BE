@@ -48,6 +48,10 @@ public class DdipMapper {
                         .longitude(photo.getLongitude())
                         .timestamp(photo.getTimestamp())
                         .status(photo.getStatus())
+                        .responderComment(photo.getResponderComment())
+                        .requesterQuestion(photo.getRequesterQuestion())
+                        .responderAnswer(photo.getResponderAnswer())
+                        .rejectionReason(photo.getRejectionReason())
                         .build())
                 .toList();
     }
@@ -97,6 +101,10 @@ public class DdipMapper {
                         .longitude(pe.getLongitude())
                         .timestamp(pe.getTimestamp())
                         .status(pe.getStatus())
+                        .responderComment(pe.getResponderComment())
+                        .requesterQuestion(pe.getRequesterQuestion())
+                        .responderAnswer(pe.getResponderAnswer())
+                        .rejectionReason(pe.getRejectionReason())
                         .build())
                 .toList();
     }

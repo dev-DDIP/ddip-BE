@@ -9,7 +9,11 @@ public record PhotoDto(
         Double latitude,
         Double longitude,
         String timestamp,
-        PhotoStatus status
+        PhotoStatus status,
+        String responderComment,
+        String requesterQuestion,
+        String responderAnswer,
+        String rejectionReason
 ) {
     public static PhotoDto fromEntity(Photo photo) {
         return new PhotoDto(
@@ -18,7 +22,11 @@ public record PhotoDto(
                 photo.getLatitude(),
                 photo.getLongitude(),
                 photo.getTimestamp().toString(),
-                photo.getStatus()
+                photo.getStatus(),
+                photo.getResponderComment(),
+                photo.getRequesterQuestion(),
+                photo.getResponderAnswer(),
+                photo.getRejectionReason()
         );
     }
 }

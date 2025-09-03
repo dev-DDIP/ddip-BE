@@ -19,6 +19,10 @@ class PhotoTest {
         Double latitude = 35.888;
         Double longitude = 128.61;
         Instant timestamp = Instant.now();
+        String responderComment = "testComment";
+        String requesterQuestion = "testQuestion";
+        String responderAnswer = "testAnswer";
+        String rejectionReason = "testReason";
 
         // when
         Photo photo = Photo.builder()
@@ -28,6 +32,10 @@ class PhotoTest {
                 .longitude(longitude)
                 .timestamp(timestamp)
                 .status(PhotoStatus.PENDING)
+                .responderComment(responderComment)
+                .requesterQuestion(requesterQuestion)
+                .responderAnswer(responderAnswer)
+                .rejectionReason(rejectionReason)
                 .build();
 
         // then
@@ -37,6 +45,10 @@ class PhotoTest {
         assertThat(photo.getLongitude()).isEqualTo(longitude);
         assertThat(photo.getTimestamp()).isEqualTo(timestamp);
         assertThat(photo.getStatus()).isEqualTo(PhotoStatus.PENDING);
+        assertThat(photo.getResponderComment()).isEqualTo(responderComment);
+        assertThat(photo.getRequesterQuestion()).isEqualTo(requesterQuestion);
+        assertThat(photo.getResponderAnswer()).isEqualTo(responderAnswer);
+        assertThat(photo.getRejectionReason()).isEqualTo(rejectionReason);
     }
 
     @DisplayName("사진 승인 성공")

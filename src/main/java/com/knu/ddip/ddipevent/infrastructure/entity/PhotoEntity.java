@@ -45,4 +45,12 @@ public class PhotoEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PhotoStatus status;
+
+    private String responderComment;
+
+    private String requesterQuestion;
+
+    private String responderAnswer;
+
+    private String rejectionReason;
 }

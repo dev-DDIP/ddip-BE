@@ -15,6 +15,10 @@ public class Photo {
     private final Double longitude;
     private final Instant timestamp;
     private PhotoStatus status;
+    private String responderComment;
+    private String requesterQuestion;
+    private String responderAnswer;
+    private String rejectionReason;
 
     public void approve() {
         this.status = PhotoStatus.APPROVED;

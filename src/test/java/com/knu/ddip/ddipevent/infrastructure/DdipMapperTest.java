@@ -1,6 +1,8 @@
 package com.knu.ddip.ddipevent.infrastructure;
 
-import com.knu.ddip.ddipevent.domain.*;
+import com.knu.ddip.ddipevent.domain.DdipEvent;
+import com.knu.ddip.ddipevent.domain.Interaction;
+import com.knu.ddip.ddipevent.domain.Photo;
 import com.knu.ddip.ddipevent.infrastructure.entity.DdipEventEntity;
 import com.knu.ddip.ddipevent.infrastructure.entity.InteractionEntity;
 import com.knu.ddip.ddipevent.infrastructure.entity.PhotoEntity;
@@ -8,8 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
