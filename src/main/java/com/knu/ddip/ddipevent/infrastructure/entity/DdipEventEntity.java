@@ -45,6 +45,10 @@ public class DdipEventEntity {
     private Double longitude;
 
     @Column(nullable = false)
+    @Setter
+    private String cellId;
+
+    @Column(nullable = false)
     private Instant createdAt;
 
     @Enumerated(EnumType.STRING)
