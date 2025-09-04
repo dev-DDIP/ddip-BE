@@ -2,26 +2,31 @@ package com.knu.ddip.ddipevent.infrastructure.repository;
 
 import com.knu.ddip.ddipevent.application.service.DdipEventRepository;
 import com.knu.ddip.ddipevent.domain.DdipEvent;
+import com.knu.ddip.ddipevent.domain.DdipStatus;
 import com.knu.ddip.ddipevent.infrastructure.DdipMapper;
 import com.knu.ddip.ddipevent.infrastructure.entity.DdipEventEntity;
+import com.knu.ddip.location.application.service.LocationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 
+@Transactional(readOnly = true)
 @Repository
 @RequiredArgsConstructor
 public class DdipEventRepositoryImpl implements DdipEventRepository {
 
     private final DdipEventJpaRepository ddipEventJpaRepository;
     private final DdipMapper ddipMapper;
-//    private final JPAQueryFactory queryFactory;
-//    private final RedisTemplate<String, String> redisTemplate;
-//    private static final int S2_LEVEL = 15;
 
+    private final LocationService locationService;
+
+    @Transactional
     @Override
     public DdipEvent save(DdipEvent ddipEvent) {
         DdipEventEntity entity = ddipMapper.toEntity(ddipEvent);
@@ -36,59 +41,21 @@ public class DdipEventRepositoryImpl implements DdipEventRepository {
 
     @Override
     public List<DdipEvent> findWithinBounds(double swLat, double swLon, double neLat, double neLon, String sort, Double userLat, Double userLon) {
-        // TODO: 실제 S2를 이용한 로직 구현 필요. 현재는 전체 다 반환
-        return ddipEventJpaRepository.findAll()
-                .stream().map(ddipMapper::toDomain).toList();
+        List<String> cellIds = locationService.getNeighborCellIdsToRetrieveNearDdipRequest(swLat, swLon, neLat, neLon);
+
+        List<DdipEventEntity> ddipEventEntities = ddipEventJpaRepository.findAllByCellIdIn(cellIds);
+
+        Comparator<DdipEventEntity> comparator = (o1, o2) -> {
+            double dist1 = Math.pow(userLat - o1.getLatitude(), 2) + Math.pow(userLon - o1.getLongitude(), 2);
+            double dist2 = Math.pow(userLat - o2.getLatitude(), 2) + Math.pow(userLon - o2.getLongitude(), 2);
+            return dist1 - dist2 >= 0 ? 1 : -1;
+        };
+
+        // 유저와 이벤트 거리 비교해서 거리 가까운 순 정렬
+        return ddipEventEntities.stream()
+                .filter(event -> event.getStatus().equals(DdipStatus.OPEN))
+                .sorted(comparator)
+                .map(ddipMapper::toDomain)
+                .toList();
     }
-//        S2LatLng sw = S2LatLng.fromDegrees(swLat, swLon);
-//        S2LatLng ne = S2LatLng.fromDegrees(neLat, neLon);
-//        S2RegionCoverer coverer = new S2RegionCoverer();
-//        coverer.setMinLevel(S2_LEVEL);
-//        coverer.setMaxLevel(S2_LEVEL);
-//        List<S2CellId> cellIds = coverer.getCovering(new com.google.common.geometry.S2LatLngRect(sw, ne)).cellIds();
-//
-//        List<String> keys = cellIds.stream()
-//                .map(cellId -> "s2:" + cellId.toToken())
-//                .toList();
-//
-//        List<String> eventIds = keys.stream()
-//                .flatMap(key -> redisTemplate.opsForSet().members(key).stream())
-//                .distinct()
-//                .toList();
-//
-//        if (eventIds.isEmpty()) {
-//            return List.of();
-//        }
-//
-//        List<DdipEvent> events = queryFactory
-//                .selectFrom(ddipEventEntity)
-//                .where(ddipEventEntity.id.in(eventIds.stream().map(UUID::fromString).collect(Collectors.toList()))
-//                        .and(ddipEventEntity.latitude.between(swLat, neLat))
-//                        .and(ddipEventEntity.longitude.between(swLon, neLon)))
-//                .fetch()
-//                .stream()
-//                .map(ddipMapper::toDomain)
-//                .collect(Collectors.toList());
-//
-//        if ("distance".equals(sort) && userLat != null && userLon != null) {
-//            events.sort((e1, e2) -> {
-//                double dist1 = distance(userLat, userLon, e1.getLatitude(), e1.getLongitude());
-//                double dist2 = distance(userLat, userLon, e2.getLatitude(), e2.getLongitude());
-//                return Double.compare(dist1, dist2);
-//            });
-//        } else {
-//            events.sort((e1, e2) -> e2.getCreatedAt().compareTo(e1.getCreatedAt()));
-//        }
-//
-//        return events;
-//    }
-//
-//    private double distance(double lat1, double lon1, double lat2, double lon2) {
-//        double theta = lon1 - lon2;
-//        double dist = Math.sin(Math.toRadians(lat1)) * Math.sin(Math.toRadians(lat2)) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.cos(Math.toRadians(theta));
-//        dist = Math.acos(dist);
-//        dist = Math.toDegrees(dist);
-//        dist = dist * 60 * 1.1515 * 1609.344;
-//        return dist;
-//    }
 }

@@ -6,6 +6,7 @@ import com.knu.ddip.ddipevent.domain.Photo;
 import com.knu.ddip.ddipevent.infrastructure.entity.DdipEventEntity;
 import com.knu.ddip.ddipevent.infrastructure.entity.InteractionEntity;
 import com.knu.ddip.ddipevent.infrastructure.entity.PhotoEntity;
+import com.knu.ddip.location.application.util.S2Converter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,8 @@ class DdipMapperTest {
 
     @BeforeEach
     void setUp() {
-        ddipMapper = new DdipMapper();
+        S2Converter s2Converter = new S2Converter();
+        ddipMapper = new DdipMapper(s2Converter);
     }
 
     @DisplayName("도메인을 엔티티로 변환 - 모든 필드 포함")
@@ -34,6 +36,8 @@ class DdipMapperTest {
                 .id(UUID.randomUUID())
                 .photos(List.of(photo))
                 .interactions(List.of(interaction))
+                .latitude(0.0)
+                .longitude(0.0)
                 .build();
 
         // when
@@ -55,6 +59,8 @@ class DdipMapperTest {
                 .id(UUID.randomUUID())
                 .photos(null)
                 .interactions(null)
+                .latitude(0.0)
+                .longitude(0.0)
                 .build();
 
         // when

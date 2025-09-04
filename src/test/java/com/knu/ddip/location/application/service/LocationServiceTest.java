@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.*;
 
 import static com.knu.ddip.location.application.util.LocationKeyFactory.*;
+import static com.knu.ddip.location.application.util.S2Constants.LEVEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -33,9 +34,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Import(IntegrationTestConfig.class)
 class LocationServiceTest {
 
-    public static final int LEVEL = 17;
     @Autowired
     LocationService locationService;
+    @Autowired
+    S2Converter s2Converter;
     @Autowired
     RedisTemplate<String, String> redisTemplate;
     @Autowired
@@ -55,7 +57,7 @@ class LocationServiceTest {
         double lat = 35.8889737;
         double lng = 128.6099251;
 
-        String cellId = S2Converter.toCellId(lat, lng, LEVEL).toToken();
+        String cellId = s2Converter.toCellIdString(lat, lng);
 
         UpdateMyLocationRequest request = UpdateMyLocationRequest.of(lat, lng);
 
@@ -85,7 +87,7 @@ class LocationServiceTest {
         double lat = 35.8889737;
         double lng = 128.6099251;
 
-        String cellId = S2Converter.toCellId(lat, lng, LEVEL).toToken();
+        String cellId = s2Converter.toCellIdString(lat, lng);
 
         UpdateMyLocationRequest request = UpdateMyLocationRequest.of(lat, lng);
 
@@ -119,7 +121,7 @@ class LocationServiceTest {
         double lat = 35.8889737;
         double lng = 128.6099251;
 
-        String cellId = S2Converter.toCellId(lat, lng, LEVEL).toToken();
+        String cellId = s2Converter.toCellIdString(lat, lng);
 
         UpdateMyLocationRequest request = UpdateMyLocationRequest.of(lat, lng);
 
@@ -180,38 +182,38 @@ class LocationServiceTest {
     }
 
     @Test
-    void getNeighborCellIdsNotInTargetAreaTest() {
+    void getNeighborCellIdsToSendDdipRequestNotInTargetAreaTest() {
         // given
         double outsideTargetAreaLat = 1.0;
         double outsideTargetAreaLng = 1.0;
 
         // when // then
-        assertThatThrownBy(() -> locationService.getNeighborCellIds(outsideTargetAreaLat, outsideTargetAreaLng))
+        assertThatThrownBy(() -> locationService.getNeighborCellIdsToSendDdipRequest(outsideTargetAreaLat, outsideTargetAreaLng))
                 .isInstanceOf(LocationNotFoundException.class)
                 .hasMessage("위치를 찾을 수 없습니다.");
     }
 
     @Test
-    void getNeighborCellIdsTest() {
+    void getNeighborCellIdsToSendDdipRequestTest() {
         // given
         double lat = 35.8890084;
         double lng = 128.6107405;
 
         // when
-        List<String> neighborCellIds = locationService.getNeighborCellIds(lat, lng);
+        List<String> neighborCellIds = locationService.getNeighborCellIdsToSendDdipRequest(lat, lng);
 
         // then
         assertThat(neighborCellIds).hasSize(9);
     }
 
     @Test
-    void getNeighborCellIdsAtEdgeTest() {
+    void getNeighborCellIdsToSendDdipRequestAtEdgeTest() {
         // given
         double lat = 35.8928546;
         double lng = 128.608922;
 
         // when
-        List<String> neighborCellIds = locationService.getNeighborCellIds(lat, lng);
+        List<String> neighborCellIds = locationService.getNeighborCellIdsToSendDdipRequest(lat, lng);
 
         // then
         assertThat(neighborCellIds).hasSize(6);
@@ -228,7 +230,7 @@ class LocationServiceTest {
         double requestLat = 35.8886597;
         double requestLng = 128.612138;
 
-        String cellId = S2Converter.toCellId(requestLat, requestLng, LEVEL).toToken();
+        String cellId = s2Converter.toCellIdString(requestLat, requestLng);
         String cellIdUsersKey = createCellIdUsersKey(cellId);
         String cellIdExpiriesKey = createCellIdExpiriesKey(cellId);
 
@@ -254,7 +256,7 @@ class LocationServiceTest {
         double requestLat = 35.8942626;
         double requestLng = 128.6066904;
 
-        String cellId = S2Converter.toCellId(requestLat, requestLng, LEVEL).toToken();
+        String cellId = s2Converter.toCellIdString(requestLat, requestLng);
         String cellIdUsersKey = createCellIdUsersKey(cellId);
         String cellIdExpiriesKey = createCellIdExpiriesKey(cellId);
 
@@ -332,6 +334,37 @@ class LocationServiceTest {
         assertThat(terminated).isTrue();
         assertThat(redisTemplate.opsForSet().isMember(cellIdUsersKey, encodedUserId)).isTrue();
         assertThat(redisTemplate.opsForZSet().score(cellIdExpiriesKey, encodedUserId)).isNotNull();
+    }
+
+    @Test
+    void getNeighborCellIdsToRetrieveNearDdipRequestTest() {
+        // given
+        double minLat = 35.8878766;
+        double minLng = 128.6089617;
+        double maxLat = 35.8895281;
+        double maxLng = 128.6112577;
+
+        // when
+        List<String> neighborCellIds = locationService.getNeighborCellIdsToRetrieveNearDdipRequest(minLat, minLng, maxLat, maxLng);
+
+        // then
+        assertThat(neighborCellIds).hasSize(21);
+    }
+
+    @Test
+    void getNeighborCellIdsToRetrieveNearDdipRequestAtEdgeTest() {
+        // given
+        double minLat = 35.8897193;
+        double minLng = 128.6044985;
+        double maxLat = 35.8936654;
+        double maxLng = 128.6110217;
+
+        // when
+        List<String> neighborCellIds = locationService.getNeighborCellIdsToRetrieveNearDdipRequest(minLat, minLng, maxLat, maxLng);
+
+        // then
+        assertThat(neighborCellIds.size()).isNotEqualTo(82);
+        assertThat(neighborCellIds).hasSize(56);
     }
 
 }
