@@ -87,6 +87,7 @@ public class DdipMapper {
                 .reward(entity.getReward())
                 .latitude(entity.getLatitude())
                 .longitude(entity.getLongitude())
+                .cellId(entity.getCellId())
                 .createdAt(entity.getCreatedAt())
                 .status(entity.getStatus())
                 .selectedResponderId(entity.getSelectedResponderId())
