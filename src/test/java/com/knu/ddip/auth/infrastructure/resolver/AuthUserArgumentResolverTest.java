@@ -50,7 +50,7 @@ class AuthUserArgumentResolverTest {
     @Test
     public void supportsParameter_whenHasLoginAnnotationAndAuthUserType_returnsTrue() {
         // Given
-        when(parameter.hasMethodAnnotation(Login.class)).thenReturn(true);
+        when(parameter.hasParameterAnnotation(Login.class)).thenReturn(true);
         when(parameter.getParameterType()).thenReturn((Class) AuthUser.class);
 
         // When
@@ -63,7 +63,7 @@ class AuthUserArgumentResolverTest {
     @Test
     public void supportsParameter_whenNoLoginAnnotation_returnsFalse() {
         // Given
-        when(parameter.hasMethodAnnotation(Login.class)).thenReturn(false);
+        when(parameter.hasParameterAnnotation(Login.class)).thenReturn(false);
         when(parameter.getParameterType()).thenReturn((Class) AuthUser.class);
 
         // When
@@ -76,7 +76,7 @@ class AuthUserArgumentResolverTest {
     @Test
     public void supportsParameter_whenNotAuthUserType_returnsFalse() {
         // Given
-        when(parameter.hasMethodAnnotation(Login.class)).thenReturn(true);
+        when(parameter.hasParameterAnnotation(Login.class)).thenReturn(true);
         when(parameter.getParameterType()).thenReturn((Class) String.class);
 
         // When
