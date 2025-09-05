@@ -64,6 +64,8 @@ dependencies {
 
 	// S2
 	implementation 'com.github.google:s2-geometry-library-java:2.0.0'
+	implementation 'org.hibernate.orm:hibernate-spatial'
+	implementation 'org.locationtech.jts:jts-core:1.19.0'
 
 	// QueryDSL
 	implementation "com.querydsl:querydsl-jpa:5.0.0:jakarta"
