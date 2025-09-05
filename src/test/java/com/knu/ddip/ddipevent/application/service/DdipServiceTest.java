@@ -2,9 +2,12 @@ package com.knu.ddip.ddipevent.application.service;
 
 import com.knu.ddip.ddipevent.application.dto.CreateDdipRequestDto;
 import com.knu.ddip.ddipevent.application.dto.DdipEventDetailDto;
+import com.knu.ddip.ddipevent.application.dto.DdipEventSummaryDto;
+import com.knu.ddip.ddipevent.application.dto.FeedRequestDto;
 import com.knu.ddip.ddipevent.domain.DdipEvent;
 import com.knu.ddip.ddipevent.domain.DdipStatus;
 import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
+import com.knu.ddip.ddipevent.util.DistanceConverter;
 import com.knu.ddip.user.business.dto.UserEntityDto;
 import com.knu.ddip.user.business.service.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -16,12 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -36,6 +40,9 @@ class DdipServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DistanceConverter distanceConverter;
 
     @DisplayName("띱 이벤트 생성 성공")
     @Test
@@ -73,32 +80,34 @@ class DdipServiceTest {
         verify(ddipEventRepository).save(any(DdipEvent.class));
     }
 
-//    @DisplayName("띱 피드 조회 성공")
-//    @Test
-//    void givenFeedRequest_whenGetDdipEventFeed_thenListOfDdipEventSummaryDtoIsReturned() {
-//        // given
-//        FeedRequestDto requestDto = new FeedRequestDto(35.0, 128.0, 36.0, 129.0, "distance", 35.5, 128.5);
-//        DdipEvent ddipEvent = DdipEvent.builder()
-//                .id(UUID.randomUUID())
-//                .requesterId(UUID.randomUUID())
-//                .createdAt(Instant.now())
-//                .applicants(new ArrayList<>())
-//                .build();
-//        List<DdipEvent> events = List.of(ddipEvent);
-//
-//        given(ddipEventRepository.findWithinBounds(
-//                anyDouble(), anyDouble(), anyDouble(), anyDouble(),
-//                anyString(), anyDouble(), anyDouble())).willReturn(events);
-//
-//        // when
-//        List<DdipEventSummaryDto> result = ddipService.getDdipEventFeed(requestDto);
-//
-//        // then
-//        assertThat(result).hasSize(1);
-//        verify(ddipEventRepository).findWithinBounds(
-//                requestDto.sw_lat(), requestDto.sw_lon(), requestDto.ne_lat(), requestDto.ne_lon(),
-//                requestDto.sort(), requestDto.user_lat(), requestDto.user_lon());
-//    }
+    @DisplayName("띱 피드 조회 성공")
+    @Test
+    void givenFeedRequest_whenGetDdipEventFeed_thenListOfDdipEventSummaryDtoIsReturned() {
+        // given
+        FeedRequestDto requestDto = new FeedRequestDto(35.0, 128.0, 36.0, 129.0, "distance", 35.5, 128.5);
+        DdipEvent ddipEvent = DdipEvent.builder()
+                .id(UUID.randomUUID())
+                .requesterId(UUID.randomUUID())
+                .createdAt(Instant.now())
+                .applicants(new ArrayList<>())
+                .latitude(0.0)
+                .longitude(0.0)
+                .build();
+        List<DdipEvent> events = List.of(ddipEvent);
+
+        given(ddipEventRepository.findWithinBounds(
+                anyDouble(), anyDouble(), anyDouble(), anyDouble(),
+                anyString(), anyDouble(), anyDouble())).willReturn(events);
+
+        // when
+        List<DdipEventSummaryDto> result = ddipService.getDdipEventFeed(requestDto);
+
+        // then
+        assertThat(result).hasSize(1);
+        verify(ddipEventRepository).findWithinBounds(
+                requestDto.sw_lat(), requestDto.sw_lon(), requestDto.ne_lat(), requestDto.ne_lon(),
+                requestDto.sort(), requestDto.user_lat(), requestDto.user_lon());
+    }
 
     @DisplayName("띱 상세 조회 성공")
     @Test
