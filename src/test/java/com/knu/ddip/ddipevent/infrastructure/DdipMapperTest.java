@@ -22,8 +22,7 @@ class DdipMapperTest {
 
     @BeforeEach
     void setUp() {
-        S2Converter s2Converter = new S2Converter();
-        ddipMapper = new DdipMapper(s2Converter);
+        ddipMapper = new DdipMapper();
     }
 
     @DisplayName("도메인을 엔티티로 변환 - 모든 필드 포함")

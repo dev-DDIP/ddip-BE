@@ -7,6 +7,7 @@ import com.knu.ddip.ddipevent.application.dto.FeedRequestDto;
 import com.knu.ddip.ddipevent.domain.DdipEvent;
 import com.knu.ddip.ddipevent.domain.DdipStatus;
 import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
+import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import com.knu.ddip.user.business.dto.UserEntityDto;
 import com.knu.ddip.user.business.service.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -39,6 +40,9 @@ class DdipServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private DistanceConverter distanceConverter;
 
     @DisplayName("띱 이벤트 생성 성공")
     @Test
@@ -86,6 +90,8 @@ class DdipServiceTest {
                 .requesterId(UUID.randomUUID())
                 .createdAt(Instant.now())
                 .applicants(new ArrayList<>())
+                .latitude(0.0)
+                .longitude(0.0)
                 .build();
         List<DdipEvent> events = List.of(ddipEvent);
 

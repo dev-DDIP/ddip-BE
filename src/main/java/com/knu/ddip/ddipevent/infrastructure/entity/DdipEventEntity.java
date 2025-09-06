@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
+import org.locationtech.jts.geom.Point;
 
 import java.time.Instant;
 import java.util.List;
@@ -44,9 +45,9 @@ public class DdipEventEntity {
     @Column(nullable = false)
     private Double longitude;
 
-    @Column(nullable = false)
+    @Column(name = "local_point", columnDefinition = "POINT SRID 4326", nullable = false)
     @Setter
-    private String cellId;
+    private Point localPoint;
 
     @Column(nullable = false)
     private Instant createdAt;
