@@ -50,10 +50,6 @@ public class DdipEventEntity {
     private Point localPoint;
 
     @Column(nullable = false)
-    @Setter
-    private String cellId;
-
-    @Column(nullable = false)
     private Instant createdAt;
 
     @Enumerated(EnumType.STRING)

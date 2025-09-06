@@ -17,7 +17,6 @@ public class DdipEvent {
     private final UUID requesterId;
     private final Double latitude;
     private final Double longitude;
-    private final String cellId;
     private final Instant createdAt;
     private String title;
     private String content;
