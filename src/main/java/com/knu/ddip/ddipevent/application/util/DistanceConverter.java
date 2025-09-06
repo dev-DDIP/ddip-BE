@@ -1,4 +1,4 @@
-package com.knu.ddip.ddipevent.util;
+package com.knu.ddip.ddipevent.application.util;
 
 import org.springframework.stereotype.Component;
 

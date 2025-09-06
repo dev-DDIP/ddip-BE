@@ -7,7 +7,7 @@ import com.knu.ddip.ddipevent.application.dto.FeedRequestDto;
 import com.knu.ddip.ddipevent.domain.DdipEvent;
 import com.knu.ddip.ddipevent.domain.DdipStatus;
 import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
-import com.knu.ddip.ddipevent.util.DistanceConverter;
+import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import com.knu.ddip.user.business.dto.UserEntityDto;
 import com.knu.ddip.user.business.service.UserRepository;
 import org.junit.jupiter.api.DisplayName;

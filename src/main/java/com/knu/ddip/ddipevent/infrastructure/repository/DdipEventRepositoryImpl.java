@@ -4,7 +4,7 @@ import com.knu.ddip.ddipevent.application.service.DdipEventRepository;
 import com.knu.ddip.ddipevent.domain.DdipEvent;
 import com.knu.ddip.ddipevent.infrastructure.DdipMapper;
 import com.knu.ddip.ddipevent.infrastructure.entity.DdipEventEntity;
-import com.knu.ddip.ddipevent.util.DistanceConverter;
+import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
