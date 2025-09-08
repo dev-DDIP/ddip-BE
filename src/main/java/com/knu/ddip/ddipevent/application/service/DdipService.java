@@ -4,6 +4,7 @@ import com.knu.ddip.common.file.FileStorageService;
 import com.knu.ddip.ddipevent.application.dto.*;
 import com.knu.ddip.ddipevent.domain.DdipEvent;
 import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
+import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import com.knu.ddip.user.business.dto.UserEntityDto;
 import com.knu.ddip.user.business.service.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class DdipService {
     private final DdipEventRepository ddipEventRepository;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
+    private final DistanceConverter distanceConverter;
 
     @Transactional
     public DdipEventDetailDto createDdipEvent(CreateDdipRequestDto dto, UUID requesterId) {
@@ -37,7 +39,7 @@ public class DdipService {
                 dto.sw_lat(), dto.sw_lon(), dto.ne_lat(), dto.ne_lon(), dto.sort(), dto.user_lat(), dto.user_lon());
 
         return events.stream()
-                .map(this::convertToSummaryDto)
+                .map(event -> convertToSummaryDto(event, dto.user_lat(), dto.user_lon()))
                 .toList();
     }
 
@@ -103,8 +105,8 @@ public class DdipService {
                 .orElseThrow(() -> new DdipNotFoundException("Ddip event를 찾을 수 없습니다."));
     }
 
-    private DdipEventSummaryDto convertToSummaryDto(DdipEvent event) {
-        // TODO: distance(요청자와 사용자 사이의 거리) 계산 로직 추가
+    private DdipEventSummaryDto convertToSummaryDto(DdipEvent event, Double userLat, Double userLon) {
+        double dist = distanceConverter.haversineMeters(event.getLatitude(), event.getLongitude(), userLat, userLon);
         return new DdipEventSummaryDto(
                 event.getId().toString(),
                 event.getTitle(),
@@ -116,7 +118,7 @@ public class DdipService {
                 event.getCreatedAt().toString(),
                 event.getApplicants().size(),
                 event.getContent(),
-                0.0, // 임시값으로 0.0
+                dist,
                 event.getDifficulty()
         );
     }

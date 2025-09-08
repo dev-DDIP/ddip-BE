@@ -1,0 +1,1 @@
+CREATE SPATIAL INDEX idx_ddip_event_local_point ON ddip_event (local_point);

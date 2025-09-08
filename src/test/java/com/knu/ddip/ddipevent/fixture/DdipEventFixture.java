@@ -24,7 +24,6 @@ public abstract class DdipEventFixture {
                 .reward(1)
                 .status(status)
                 .title("title")
-                .cellId(cellId)
                 .build();
         return event;
     }

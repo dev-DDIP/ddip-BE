@@ -6,8 +6,9 @@ import com.knu.ddip.ddipevent.domain.Photo;
 import com.knu.ddip.ddipevent.infrastructure.entity.DdipEventEntity;
 import com.knu.ddip.ddipevent.infrastructure.entity.InteractionEntity;
 import com.knu.ddip.ddipevent.infrastructure.entity.PhotoEntity;
-import com.knu.ddip.location.application.util.S2Converter;
-import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -15,16 +16,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-@RequiredArgsConstructor
 public class DdipMapper {
 
-    private final S2Converter s2Converter;
+    public static final int SRID = 4326;
+    private GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), SRID);
 
     public DdipEventEntity toEntity(DdipEvent domain) {
         DdipEventEntity entity = buildDdipEventEntity(domain);
         entity.setPhotos(mapPhotos(domain.getPhotos(), entity));
         entity.setInteractions(mapInteractions(domain.getInteractions(), entity));
-        entity.setCellId(s2Converter.toCellIdString(domain.getLatitude(),domain.getLongitude()));
+        entity.setLocalPoint(geometryFactory.createPoint(new Coordinate(domain.getLongitude(), domain.getLatitude())));
         return entity;
     }
 
@@ -89,7 +90,6 @@ public class DdipMapper {
                 .reward(entity.getReward())
                 .latitude(entity.getLatitude())
                 .longitude(entity.getLongitude())
-                .cellId(entity.getCellId())
                 .createdAt(entity.getCreatedAt())
                 .status(entity.getStatus())
                 .selectedResponderId(entity.getSelectedResponderId())
