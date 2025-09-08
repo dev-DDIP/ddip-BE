@@ -1,11 +1,8 @@
 package com.knu.ddip.ddipevent.application.service;
 
-import com.knu.ddip.ddipevent.application.dto.CreateDdipRequestDto;
-import com.knu.ddip.ddipevent.application.dto.DdipEventDetailDto;
-import com.knu.ddip.ddipevent.application.dto.DdipEventSummaryDto;
-import com.knu.ddip.ddipevent.application.dto.FeedRequestDto;
-import com.knu.ddip.ddipevent.domain.DdipEvent;
-import com.knu.ddip.ddipevent.domain.DdipStatus;
+import com.knu.ddip.common.file.FileStorageService;
+import com.knu.ddip.ddipevent.application.dto.*;
+import com.knu.ddip.ddipevent.domain.*;
 import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
 import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import com.knu.ddip.user.business.dto.UserEntityDto;
@@ -16,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,6 +38,9 @@ class DdipServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @Mock
     private DistanceConverter distanceConverter;
@@ -144,5 +145,176 @@ class DdipServiceTest {
         assertThatThrownBy(() -> ddipService.getDdipEventDetail(invalidDdipId))
                 .isInstanceOf(DdipNotFoundException.class);
         verify(ddipEventRepository).findById(invalidDdipId);
+    }
+
+    @DisplayName("사진 업로드 성공")
+    @Test
+    void givenPhotoUploadRequest_whenUploadPhotoForDdipEvent_thenPhotoIsUploaded() {
+        // given
+        UUID eventId = UUID.randomUUID();
+        UUID responderId = UUID.randomUUID();
+        MultipartFile mockFile = org.mockito.Mockito.mock(MultipartFile.class);
+        PhotoUploadRequest request = new PhotoUploadRequest(mockFile, 35.888, 128.61, "업로드 완료");
+        String photoUrl = "https://example.com/photo.jpg";
+        
+        UserEntityDto responder = UserEntityDto.builder().id(responderId).build();
+        DdipEvent ddipEvent = DdipEvent.builder()
+                .id(eventId)
+                .selectedResponderId(responderId)
+                .status(DdipStatus.IN_PROGRESS)
+                .photos(new ArrayList<>())
+                .interactions(new ArrayList<>())
+                .applicants(new ArrayList<>())
+                .createdAt(Instant.now())
+                .build();
+        DdipEvent updatedEvent = DdipEvent.builder()
+                .id(eventId)
+                .photos(new ArrayList<>())
+                .interactions(new ArrayList<>())
+                .applicants(new ArrayList<>())
+                .createdAt(Instant.now())
+                .build();
+
+        given(userRepository.getById(responderId)).willReturn(responder);
+        given(ddipEventRepository.findById(eventId)).willReturn(Optional.of(ddipEvent));
+        given(fileStorageService.uploadFile(mockFile, "photos")).willReturn(photoUrl);
+        given(ddipEventRepository.save(any(DdipEvent.class))).willReturn(updatedEvent);
+
+        // when
+        DdipEventDetailDto result = ddipService.uploadPhotoForDdipEvent(eventId, request, responderId);
+
+        // then
+        assertThat(result).isNotNull();
+        verify(userRepository).getById(responderId);
+        verify(ddipEventRepository).findById(eventId);
+        verify(fileStorageService).uploadFile(mockFile, "photos");
+        verify(ddipEventRepository).save(any(DdipEvent.class));
+    }
+
+    @DisplayName("사진 피드백 업데이트 성공")
+    @Test
+    void givenPhotoFeedbackRequest_whenUpdatePhotoFeedback_thenFeedbackIsUpdated() {
+        // given
+        UUID eventId = UUID.randomUUID();
+        UUID photoId = UUID.randomUUID();
+        UUID requesterId = UUID.randomUUID();
+        PhotoFeedbackRequest request = new PhotoFeedbackRequest(PhotoStatus.APPROVED, "승인합니다");
+        
+        Photo photo = Photo.builder()
+                .photoId(photoId)
+                .status(PhotoStatus.PENDING)
+                .build();
+        
+        UserEntityDto requester = UserEntityDto.builder().id(requesterId).build();
+        DdipEvent ddipEvent = DdipEvent.builder()
+                .id(eventId)
+                .requesterId(requesterId)
+                .photos(List.of(photo))
+                .interactions(new ArrayList<>())
+                .applicants(new ArrayList<>())
+                .createdAt(Instant.now())
+                .build();
+        DdipEvent updatedEvent = DdipEvent.builder()
+                .id(eventId)
+                .photos(new ArrayList<>())
+                .interactions(new ArrayList<>())
+                .applicants(new ArrayList<>())
+                .createdAt(Instant.now())
+                .build();
+
+        given(userRepository.getById(requesterId)).willReturn(requester);
+        given(ddipEventRepository.findById(eventId)).willReturn(Optional.of(ddipEvent));
+        given(ddipEventRepository.save(any(DdipEvent.class))).willReturn(updatedEvent);
+
+        // when
+        DdipEventDetailDto result = ddipService.updatePhotoFeedback(eventId, photoId, request, requesterId);
+
+        // then
+        assertThat(result).isNotNull();
+        verify(userRepository).getById(requesterId);
+        verify(ddipEventRepository).findById(eventId);
+        verify(ddipEventRepository).save(any(DdipEvent.class));
+    }
+
+    @DisplayName("띱 완료 성공")
+    @Test
+    void givenRequesterId_whenCompleteDdipEventMission_thenMissionIsCompleted() {
+        // given
+        UUID eventId = UUID.randomUUID();
+        UUID requesterId = UUID.randomUUID();
+        
+        Photo approvedPhoto = Photo.builder()
+                .status(PhotoStatus.APPROVED)
+                .build();
+        
+        UserEntityDto requester = UserEntityDto.builder().id(requesterId).build();
+        DdipEvent ddipEvent = DdipEvent.builder()
+                .id(eventId)
+                .requesterId(requesterId)
+                .photos(List.of(approvedPhoto))
+                .interactions(new ArrayList<>())
+                .applicants(new ArrayList<>())
+                .createdAt(Instant.now())
+                .build();
+        DdipEvent updatedEvent = DdipEvent.builder()
+                .id(eventId)
+                .status(DdipStatus.COMPLETED)
+                .photos(new ArrayList<>())
+                .interactions(new ArrayList<>())
+                .applicants(new ArrayList<>())
+                .createdAt(Instant.now())
+                .build();
+
+        given(userRepository.getById(requesterId)).willReturn(requester);
+        given(ddipEventRepository.findById(eventId)).willReturn(Optional.of(ddipEvent));
+        given(ddipEventRepository.save(any(DdipEvent.class))).willReturn(updatedEvent);
+
+        // when
+        DdipEventDetailDto result = ddipService.completeDdipEventMission(eventId, requesterId);
+
+        // then
+        assertThat(result).isNotNull();
+        verify(userRepository).getById(requesterId);
+        verify(ddipEventRepository).findById(eventId);
+        verify(ddipEventRepository).save(any(DdipEvent.class));
+    }
+
+    @DisplayName("띱 취소 성공")
+    @Test
+    void givenRequesterOrResponderId_whenCancelDdipEventMission_thenMissionIsCanceled() {
+        // given
+        UUID eventId = UUID.randomUUID();
+        UUID requesterId = UUID.randomUUID();
+        
+        UserEntityDto requester = UserEntityDto.builder().id(requesterId).build();
+        DdipEvent ddipEvent = DdipEvent.builder()
+                .id(eventId)
+                .requesterId(requesterId)
+                .photos(new ArrayList<>())
+                .interactions(new ArrayList<>())
+                .applicants(new ArrayList<>())
+                .createdAt(Instant.now())
+                .build();
+        DdipEvent updatedEvent = DdipEvent.builder()
+                .id(eventId)
+                .status(DdipStatus.CANCELED)
+                .photos(new ArrayList<>())
+                .interactions(new ArrayList<>())
+                .applicants(new ArrayList<>())
+                .createdAt(Instant.now())
+                .build();
+
+        given(userRepository.getById(requesterId)).willReturn(requester);
+        given(ddipEventRepository.findById(eventId)).willReturn(Optional.of(ddipEvent));
+        given(ddipEventRepository.save(any(DdipEvent.class))).willReturn(updatedEvent);
+
+        // when
+        DdipEventDetailDto result = ddipService.cancelDdipEventMission(eventId, requesterId);
+
+        // then
+        assertThat(result).isNotNull();
+        verify(userRepository).getById(requesterId);
+        verify(ddipEventRepository).findById(eventId);
+        verify(ddipEventRepository).save(any(DdipEvent.class));
     }
 }
