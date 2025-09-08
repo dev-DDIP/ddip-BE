@@ -107,9 +107,9 @@ class DdipServiceTest {
     @Test
     void givenDdipId_whenGetDdipEventDetail_thenDdipEventDetailDtoIsReturned() {
         // given
-        UUID ddipId = UUID.randomUUID();
+        UUID eventId = UUID.randomUUID();
         DdipEvent ddipEvent = DdipEvent.builder()
-                .id(ddipId)
+                .id(eventId)
                 .requesterId(UUID.randomUUID())
                 .createdAt(Instant.now())
                 .photos(new ArrayList<>())
@@ -117,14 +117,14 @@ class DdipServiceTest {
                 .applicants(new ArrayList<>())
                 .build();
 
-        given(ddipEventRepository.findById(ddipId)).willReturn(Optional.of(ddipEvent));
+        given(ddipEventRepository.findById(eventId)).willReturn(Optional.of(ddipEvent));
 
         // when
-        DdipEventDetailDto result = ddipService.getDdipEventDetail(ddipId);
+        DdipEventDetailDto result = ddipService.getDdipEventDetail(eventId);
 
         // then
-        assertThat(result.id()).isEqualTo(ddipId.toString());
-        verify(ddipEventRepository).findById(ddipId);
+        assertThat(result.id()).isEqualTo(eventId.toString());
+        verify(ddipEventRepository).findById(eventId);
     }
 
     @DisplayName("띱 상세 조회 실패 - 띱을 찾을 수 없음")
