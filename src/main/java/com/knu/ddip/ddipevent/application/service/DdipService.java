@@ -2,9 +2,9 @@ package com.knu.ddip.ddipevent.application.service;
 
 import com.knu.ddip.common.file.FileStorageService;
 import com.knu.ddip.ddipevent.application.dto.*;
+import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import com.knu.ddip.ddipevent.domain.DdipEvent;
 import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
-import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import com.knu.ddip.user.business.dto.UserEntityDto;
 import com.knu.ddip.user.business.service.UserRepository;
 import lombok.RequiredArgsConstructor;

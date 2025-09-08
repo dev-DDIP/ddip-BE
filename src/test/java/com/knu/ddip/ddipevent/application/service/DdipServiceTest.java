@@ -2,9 +2,12 @@ package com.knu.ddip.ddipevent.application.service;
 
 import com.knu.ddip.common.file.FileStorageService;
 import com.knu.ddip.ddipevent.application.dto.*;
-import com.knu.ddip.ddipevent.domain.*;
-import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
 import com.knu.ddip.ddipevent.application.util.DistanceConverter;
+import com.knu.ddip.ddipevent.domain.DdipEvent;
+import com.knu.ddip.ddipevent.domain.DdipStatus;
+import com.knu.ddip.ddipevent.domain.Photo;
+import com.knu.ddip.ddipevent.domain.PhotoStatus;
+import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
 import com.knu.ddip.user.business.dto.UserEntityDto;
 import com.knu.ddip.user.business.service.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -156,7 +159,7 @@ class DdipServiceTest {
         MultipartFile mockFile = org.mockito.Mockito.mock(MultipartFile.class);
         PhotoUploadRequest request = new PhotoUploadRequest(mockFile, 35.888, 128.61, "업로드 완료");
         String photoUrl = "https://example.com/photo.jpg";
-        
+
         UserEntityDto responder = UserEntityDto.builder().id(responderId).build();
         DdipEvent ddipEvent = DdipEvent.builder()
                 .id(eventId)
@@ -199,12 +202,12 @@ class DdipServiceTest {
         UUID photoId = UUID.randomUUID();
         UUID requesterId = UUID.randomUUID();
         PhotoFeedbackRequest request = new PhotoFeedbackRequest(PhotoStatus.APPROVED, "승인합니다");
-        
+
         Photo photo = Photo.builder()
                 .photoId(photoId)
                 .status(PhotoStatus.PENDING)
                 .build();
-        
+
         UserEntityDto requester = UserEntityDto.builder().id(requesterId).build();
         DdipEvent ddipEvent = DdipEvent.builder()
                 .id(eventId)
@@ -242,11 +245,11 @@ class DdipServiceTest {
         // given
         UUID eventId = UUID.randomUUID();
         UUID requesterId = UUID.randomUUID();
-        
+
         Photo approvedPhoto = Photo.builder()
                 .status(PhotoStatus.APPROVED)
                 .build();
-        
+
         UserEntityDto requester = UserEntityDto.builder().id(requesterId).build();
         DdipEvent ddipEvent = DdipEvent.builder()
                 .id(eventId)
@@ -285,7 +288,7 @@ class DdipServiceTest {
         // given
         UUID eventId = UUID.randomUUID();
         UUID requesterId = UUID.randomUUID();
-        
+
         UserEntityDto requester = UserEntityDto.builder().id(requesterId).build();
         DdipEvent ddipEvent = DdipEvent.builder()
                 .id(eventId)

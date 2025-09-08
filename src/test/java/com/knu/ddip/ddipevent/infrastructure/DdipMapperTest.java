@@ -129,7 +129,7 @@ class DdipMapperTest {
                 .responderAnswer("수행자 답변")
                 .rejectionReason("거절 사유")
                 .build();
-        
+
         DdipEvent domain = DdipEvent.builder()
                 .photos(List.of(photo))
                 .latitude(0.0)
@@ -171,7 +171,7 @@ class DdipMapperTest {
                 .relatedPhotoId(relatedPhotoId)
                 .timestamp(timestamp)
                 .build();
-        
+
         DdipEvent domain = DdipEvent.builder()
                 .interactions(List.of(interaction))
                 .latitude(0.0)
@@ -211,7 +211,7 @@ class DdipMapperTest {
                 .responderAnswer("수행자 답변")
                 .rejectionReason("거절 사유")
                 .build();
-        
+
         DdipEventEntity entity = DdipEventEntity.builder()
                 .photos(List.of(photoEntity))
                 .build();
@@ -250,7 +250,7 @@ class DdipMapperTest {
                 .relatedPhotoId(relatedPhotoId)
                 .timestamp(timestamp)
                 .build();
-        
+
         DdipEventEntity entity = DdipEventEntity.builder()
                 .interactions(List.of(interactionEntity))
                 .build();
