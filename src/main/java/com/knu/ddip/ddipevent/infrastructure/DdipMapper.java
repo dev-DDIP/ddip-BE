@@ -10,7 +10,9 @@ import com.knu.ddip.location.application.util.S2Converter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -38,13 +40,13 @@ public class DdipMapper {
                 .createdAt(domain.getCreatedAt())
                 .status(domain.getStatus())
                 .selectedResponderId(domain.getSelectedResponderId())
-                .applicants(domain.getApplicants())
+                .applicants(domain.getApplicants() != null ? domain.getApplicants() : new ArrayList<>())
                 .difficulty(domain.getDifficulty())
                 .build();
     }
 
     private List<PhotoEntity> mapPhotos(List<Photo> photos, DdipEventEntity ddipEvent) {
-        if (photos == null) return List.of();
+        if (photos == null) return new ArrayList<>();
         return photos.stream()
                 .map(photo -> PhotoEntity.builder()
                         .id(photo.getPhotoId())
@@ -59,11 +61,11 @@ public class DdipMapper {
                         .responderAnswer(photo.getResponderAnswer())
                         .rejectionReason(photo.getRejectionReason())
                         .build())
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private List<InteractionEntity> mapInteractions(List<Interaction> interactions, DdipEventEntity ddipEvent) {
-        if (interactions == null) return List.of();
+        if (interactions == null) return new ArrayList<>();
         return interactions.stream()
                 .map(interaction -> InteractionEntity.builder()
                         .id(interaction.getInteractionId())
@@ -75,7 +77,7 @@ public class DdipMapper {
                         .relatedPhotoId(interaction.getRelatedPhotoId())
                         .timestamp(interaction.getTimestamp())
                         .build())
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public DdipEvent toDomain(DdipEventEntity entity) {
@@ -99,7 +101,7 @@ public class DdipMapper {
     }
 
     private List<Photo> mapPhotoDomain(List<PhotoEntity> photoEntities) {
-        if (photoEntities == null) return List.of();
+        if (photoEntities == null) return new ArrayList<>();
         return photoEntities.stream()
                 .map(pe -> Photo.builder()
                         .photoId(pe.getId())
@@ -113,11 +115,11 @@ public class DdipMapper {
                         .responderAnswer(pe.getResponderAnswer())
                         .rejectionReason(pe.getRejectionReason())
                         .build())
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private List<Interaction> mapInteractionDomain(List<InteractionEntity> interactionEntities) {
-        if (interactionEntities == null) return List.of();
+        if (interactionEntities == null) return new ArrayList<>();
         return interactionEntities.stream()
                 .map(ie -> Interaction.builder()
                         .interactionId(ie.getId())
@@ -128,6 +130,6 @@ public class DdipMapper {
                         .relatedPhotoId(ie.getRelatedPhotoId())
                         .timestamp(ie.getTimestamp())
                         .build())
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }
