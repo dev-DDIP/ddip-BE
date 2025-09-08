@@ -27,6 +27,11 @@ public class TestEnvironmentConfig implements BeforeAllCallback {
     private static final String TEST_KAKAO_REST_API_KEY = "test_kakao_api_key_for_testing_only";
     private static final String TEST_KAKAO_BACKEND_REDIRECT_URI = "http://localhost:8080/auth/oauth/kakao/callback/test";
 
+    // S3 테스트용 설정값
+    private static final String AWS_ACCESS_KEY_ID = "AKIA123456789TESTKEY";
+    private static final String AWS_SECRET_ACCESS_KEY = "abc123xyz456def789ghi000testKeySecretValue";
+    private static final String S3_BUCKET_NAME = "my-test-bucket";
+
     @Override
     public void beforeAll(ExtensionContext context) {
         // JWT 설정
@@ -50,5 +55,10 @@ public class TestEnvironmentConfig implements BeforeAllCallback {
         // Kakao OAuth 설정
         System.setProperty("KAKAO_REST_API_KEY", TEST_KAKAO_REST_API_KEY);
         System.setProperty("KAKAO_BACKEND_REDIRECT_URI", TEST_KAKAO_BACKEND_REDIRECT_URI);
+
+        // S3 설정
+        System.setProperty("AWS_ACCESS_KEY_ID", AWS_ACCESS_KEY_ID);
+        System.setProperty("AWS_SECRET_ACCESS_KEY", AWS_SECRET_ACCESS_KEY);
+        System.setProperty("S3_BUCKET_NAME", S3_BUCKET_NAME);
     }
 }
