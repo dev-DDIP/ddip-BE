@@ -7,12 +7,14 @@ public enum ActionType {
     APPROVE,
     REQUEST_REVISION,
     CANCEL_BY_REQUESTER,
+    ASK_QUESTION,
 
     // RESPONDER actions
     APPLY,
     SUBMIT_PHOTO,
     REPORT_SITUATION,
     GIVE_UP_BY_RESPONDER,
+    ANSWER_QUESTION,
 
     // SYSTEM actions
     EXPIRE,

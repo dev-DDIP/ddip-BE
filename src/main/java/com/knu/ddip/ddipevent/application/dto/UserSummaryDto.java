@@ -10,4 +10,8 @@ public record UserSummaryDto(
         Integer responderMissionCount,
         BadgeDto representativeBadge
 ) {
+    public static UserSummaryDto fromUserId(String userId) { // TODO : 구현
+        return new UserSummaryDto(userId, null, null, null, null,
+                null, null, null);
+    }
 }

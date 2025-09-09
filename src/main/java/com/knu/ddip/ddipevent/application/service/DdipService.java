@@ -1,9 +1,10 @@
 package com.knu.ddip.ddipevent.application.service;
 
+import com.knu.ddip.common.file.FileStorageService;
 import com.knu.ddip.ddipevent.application.dto.*;
+import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import com.knu.ddip.ddipevent.domain.DdipEvent;
 import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
-import com.knu.ddip.ddipevent.application.util.DistanceConverter;
 import com.knu.ddip.user.business.dto.UserEntityDto;
 import com.knu.ddip.user.business.service.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class DdipService {
 
     private final DdipEventRepository ddipEventRepository;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
     private final DistanceConverter distanceConverter;
 
     @Transactional
@@ -41,10 +43,66 @@ public class DdipService {
                 .toList();
     }
 
-    public DdipEventDetailDto getDdipEventDetail(UUID ddipId) {
-        DdipEvent event = ddipEventRepository.findById(ddipId)
-                .orElseThrow(() -> new DdipNotFoundException("Ddip event를 찾을 수 없습니다."));
+    public DdipEventDetailDto getDdipEventDetail(UUID eventId) {
+        DdipEvent event = getDdipEvent(eventId);
         return convertToDetailDto(event);
+    }
+
+    @Transactional
+    public void applyDdipEvent(UUID eventId, UUID responderId) {
+        UserEntityDto responder = userRepository.getById(responderId);
+        DdipEvent event = getDdipEvent(eventId);
+        DdipEvent updatedEvent = event.apply(responder.getId());
+        ddipEventRepository.save(updatedEvent);
+    }
+
+    @Transactional
+    public void selectApplicantForDdipEvent(UUID eventId, SelectApplicantRequest selectApplicantRequest, UUID requesterId) {
+        UserEntityDto requester = userRepository.getById(requesterId);
+        UserEntityDto responder = userRepository.getById(selectApplicantRequest.applicantId());
+        DdipEvent event = getDdipEvent(eventId);
+        DdipEvent updatedEvent = event.selectResponder(requester.getId(), responder.getId());
+        ddipEventRepository.save(updatedEvent);
+    }
+
+    @Transactional
+    public DdipEventDetailDto uploadPhotoForDdipEvent(UUID eventId, PhotoUploadRequest photoUploadRequest, UUID responderId) {
+        UserEntityDto responder = userRepository.getById(responderId);
+        DdipEvent event = getDdipEvent(eventId);
+
+        String photoUrl = fileStorageService.uploadFile(photoUploadRequest.photo(), "photos");
+
+        DdipEvent updatedEvent = event.uploadPhoto(responder.getId(), photoUrl, photoUploadRequest.latitude(), photoUploadRequest.longitude(), photoUploadRequest.responderComment());
+        return convertToDetailDto(ddipEventRepository.save(updatedEvent));
+    }
+
+    @Transactional
+    public DdipEventDetailDto updatePhotoFeedback(UUID eventId, UUID photoId, PhotoFeedbackRequest photoFeedbackRequest, UUID requesterOrResponderId) {
+        UserEntityDto requesterOrResponder = userRepository.getById(requesterOrResponderId);
+        DdipEvent event = getDdipEvent(eventId);
+        DdipEvent updatedEvent = event.updatePhotoFeedback(requesterOrResponder.getId(), photoId, photoFeedbackRequest.status(), photoFeedbackRequest.feedback());
+        return convertToDetailDto(ddipEventRepository.save(updatedEvent));
+    }
+
+    @Transactional
+    public DdipEventDetailDto completeDdipEventMission(UUID eventId, UUID requesterId) {
+        UserEntityDto requester = userRepository.getById(requesterId);
+        DdipEvent event = getDdipEvent(eventId);
+        DdipEvent updatedEvent = event.complete(requester.getId());
+        return convertToDetailDto(ddipEventRepository.save(updatedEvent));
+    }
+
+    @Transactional
+    public DdipEventDetailDto cancelDdipEventMission(UUID eventId, UUID requesterOrResponderId) {
+        UserEntityDto requesterOrResponder = userRepository.getById(requesterOrResponderId);
+        DdipEvent event = getDdipEvent(eventId);
+        DdipEvent updatedEvent = event.cancel(requesterOrResponder.getId());
+        return convertToDetailDto(ddipEventRepository.save(updatedEvent));
+    }
+
+    private DdipEvent getDdipEvent(UUID eventId) {
+        return ddipEventRepository.findById(eventId)
+                .orElseThrow(() -> new DdipNotFoundException("Ddip event를 찾을 수 없습니다."));
     }
 
     private DdipEventSummaryDto convertToSummaryDto(DdipEvent event, Double userLat, Double userLon) {
@@ -76,8 +134,9 @@ public class DdipService {
                 event.getLongitude(),
                 event.getStatus(),
                 event.getCreatedAt().toString(),
-                null, // TODO: applicants
-                null, // TODO: selectedResponder
+                event.getApplicants().stream().map(UUID::toString).map(UserSummaryDto::fromUserId).toList(), // TODO: 세부 구현
+                event.getSelectedResponderId() != null
+                        ? UserSummaryDto.fromUserId(event.getSelectedResponderId().toString()) : null, // TODO: 세부 구현
                 event.getPhotos().stream()
                         .map(PhotoDto::fromEntity)
                         .toList(),

@@ -1,10 +1,13 @@
 package com.knu.ddip.common.exception;
 
 import com.knu.ddip.auth.exception.*;
+import com.knu.ddip.common.file.FileStorageException;
 import com.knu.ddip.ddipevent.exception.DdipBadRequestException;
 import com.knu.ddip.ddipevent.exception.DdipForbiddenException;
 import com.knu.ddip.ddipevent.exception.DdipNotFoundException;
 import com.knu.ddip.location.exception.LocationNotFoundException;
+import com.knu.ddip.user.exception.UserEmailDuplicateException;
+import com.knu.ddip.user.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
@@ -103,4 +106,27 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problemDetail);
     }
 
+    @ExceptionHandler(UserEmailDuplicateException.class)
+    public ResponseEntity<ProblemDetail> handleUserEmailDuplicateException(UserEmailDuplicateException e) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problemDetail.setTitle("User Email Duplicate");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleUserNotFoundException(UserNotFoundException e) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setTitle("User NotFound");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<ProblemDetail> handleFileStorageException(FileStorageException e) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        problemDetail.setTitle("File Storage Exception");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
+    }
 }
