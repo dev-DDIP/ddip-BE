@@ -4,6 +4,7 @@ import com.knu.ddip.auth.business.dto.JwtResponse;
 import com.knu.ddip.auth.business.service.OAuthLoginService;
 import com.knu.ddip.auth.domain.DeviceType;
 import com.knu.ddip.auth.exception.OAuthBadRequestException;
+import com.knu.ddip.user.business.dto.DummyRequest;
 import com.knu.ddip.user.business.dto.SignupRequest;
 import com.knu.ddip.user.business.dto.UniqueMailResponse;
 import com.knu.ddip.user.business.dto.UserEntityDto;
@@ -70,5 +71,19 @@ public class UserService {
             userRepository.delete(user.getId());
             throw e;
         }
+    }
+
+    @Transactional
+    public JwtResponse dummyLogin(DummyRequest dummyRequest) {
+        UserEntityDto userEntityDto = userRepository.findOptionalByEmail(dummyRequest.email())
+                .map(user -> userRepository.getByEmail(dummyRequest.email()))
+                .orElseGet(() -> userRepository.save(
+                        dummyRequest.email(),
+                        dummyRequest.nickname(),
+                        UserStatus.ACTIVE.name()
+                ));
+        User user = userEntityDto.toDomain();
+
+        return oAuthLoginService.generateTokensForUser(user.getId(), DeviceType.PHONE);
     }
 }

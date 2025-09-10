@@ -1,6 +1,7 @@
 package com.knu.ddip.user.presentation.controller;
 
 import com.knu.ddip.auth.business.dto.JwtResponse;
+import com.knu.ddip.user.business.dto.DummyRequest;
 import com.knu.ddip.user.business.dto.SignupRequest;
 import com.knu.ddip.user.business.dto.UniqueMailResponse;
 import com.knu.ddip.user.business.service.UserService;
@@ -31,6 +32,12 @@ public class UserController implements UserApi {
             @RequestParam("v") String email) {
         UniqueMailResponse result = userService.checkEmailUniqueness(email);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(result);
+    }
+
+    @Override
+    public ResponseEntity<JwtResponse> dummyLogin(DummyRequest dummyRequest) {
+        JwtResponse jwtResponse = userService.dummyLogin(dummyRequest);
+        return ResponseEntity.ok(jwtResponse);
     }
 
     //TODO: 로그아웃

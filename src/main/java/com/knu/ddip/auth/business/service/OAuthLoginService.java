@@ -145,7 +145,7 @@ public class OAuthLoginService {
         return generateTokensForUser(user.getId(), deviceType);
     }
 
-    private JwtResponse generateTokensForUser(UUID userId, DeviceType deviceType) {
+    public JwtResponse generateTokensForUser(UUID userId, DeviceType deviceType) {
         UserEntityDto userEntityDto = userRepository.getById(userId);
         UserFactory.create(userEntityDto.getId(), userEntityDto.getEmail(),
                 userEntityDto.getNickname(), userEntityDto.getStatus());
